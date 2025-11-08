@@ -23,6 +23,9 @@ curl -fsSL https://raw.githubusercontent.com/imaimai17468/docdd/main/migrate.sh 
 
 # 相対パスでも指定可能
 curl -fsSL https://raw.githubusercontent.com/imaimai17468/docdd/main/migrate.sh | bash -s -- ../my-project
+
+# 既存ファイルを確認せずに上書き（--yes または -y オプション）
+curl -fsSL https://raw.githubusercontent.com/imaimai17468/docdd/main/migrate.sh | bash -s -- --yes /path/to/target-project
 ```
 
 ### 別の実行方法
@@ -150,7 +153,11 @@ bash <(curl -fsSL https://raw.githubusercontent.com/imaimai17468/docdd/main/migr
 
 ## 既存ファイルの扱い
 
-移行先に既に同名のファイルが存在する場合、上書きするか確認されます：
+移行先に既に同名のファイルが存在する場合の動作：
+
+### 対話モード（標準入力がTTYの場合）
+
+上書きするか確認されます：
 
 ```
 警告: CLAUDE.md は既に存在します。上書きしますか？ (y/N)
@@ -158,6 +165,16 @@ bash <(curl -fsSL https://raw.githubusercontent.com/imaimai17468/docdd/main/migr
 
 - `y` または `Y` を入力: 上書き
 - その他: スキップ
+
+### 非対話モード（--yesオプション使用時）
+
+`--yes`（または`-y`、`--force`、`-f`）オプションを使用すると、既存ファイルを確認せずに上書きします：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/imaimai17468/docdd/main/migrate.sh | bash -s -- --yes /path/to/target-project
+```
+
+**注意**: パイプ経由で実行しても、`--yes`オプションがない場合は対話的に確認されます。端末から`y`または`n`を入力してください。
 
 ## 注意事項
 

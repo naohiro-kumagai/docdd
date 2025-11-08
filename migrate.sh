@@ -20,7 +20,26 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # 引数チェック
-if [ $# -eq 0 ]; then
+FORCE_OVERWRITE=false
+TARGET_DIR=""
+
+# 引数を解析
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --yes|-y|--force|-f)
+            FORCE_OVERWRITE=true
+            shift
+            ;;
+        *)
+            if [ -z "$TARGET_DIR" ]; then
+                TARGET_DIR="$1"
+            fi
+            shift
+            ;;
+    esac
+done
+
+if [ -z "$TARGET_DIR" ]; then
     echo -e "${RED}エラー: ターゲットプロジェクトのパスを指定してください${NC}"
     echo ""
     echo "使用方法:"
@@ -28,12 +47,14 @@ if [ $# -eq 0 ]; then
     echo "  または"
     echo "  bash <(curl -fsSL https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${BRANCH}/migrate.sh) <ターゲットプロジェクトのパス>"
     echo ""
+    echo "オプション:"
+    echo "  --yes, -y, --force, -f  既存ファイルを確認せずに上書き"
+    echo ""
     echo "例:"
     echo "  curl -fsSL https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${BRANCH}/migrate.sh | bash -s -- /path/to/target-project"
+    echo "  curl -fsSL https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${BRANCH}/migrate.sh | bash -s -- --yes /path/to/target-project"
     exit 1
 fi
-
-TARGET_DIR="$1"
 
 # ターゲットディレクトリの存在確認
 if [ ! -d "$TARGET_DIR" ]; then
@@ -115,6 +136,23 @@ replace_placeholders() {
     fi
 }
 
+# 既存ファイルの上書き確認関数
+should_overwrite() {
+    local file_path="$1"
+    if [ "$FORCE_OVERWRITE" = true ]; then
+        return 0  # 上書きする
+    fi
+
+    # 対話的に確認（/dev/ttyを使用して端末から直接入力を受け取る）
+    echo -e "    ${YELLOW}警告: $file_path は既に存在します。上書きしますか？ (y/N)${NC}" >&2
+    read -r response < /dev/tty
+    if [[ "$response" =~ ^[Yy]$ ]]; then
+        return 0  # 上書きする
+    else
+        return 1  # スキップする
+    fi
+}
+
 # ルートレベルのファイルをダウンロード
 echo -e "${YELLOW}ルートレベルのファイル:${NC}"
 for file in "${ROOT_FILES[@]}"; do
@@ -123,11 +161,13 @@ for file in "${ROOT_FILES[@]}"; do
         # 既存ファイルの確認
         target_file="$TARGET_DIR/$file"
         if [ -f "$target_file" ]; then
-            echo -e "    ${YELLOW}警告: $file は既に存在します。上書きしますか？ (y/N)${NC}"
-            read -r response
-            if [[ ! "$response" =~ ^[Yy]$ ]]; then
-                echo "    スキップ: $file"
-                continue
+            if [ "$FORCE_OVERWRITE" = true ]; then
+                echo -e "    ${YELLOW}既存ファイルを上書き: $file${NC}"
+            else
+                if ! should_overwrite "$file"; then
+                    echo "    スキップ: $file"
+                    continue
+                fi
             fi
         fi
 
@@ -154,11 +194,13 @@ for file in "${CLAUDE_AGENTS[@]}"; do
         target_file="$TARGET_DIR/.claude/agents/$file"
 
         if [ -f "$target_file" ]; then
-            echo -e "    ${YELLOW}警告: .claude/agents/$file は既に存在します。上書きしますか？ (y/N)${NC}"
-            read -r response
-            if [[ ! "$response" =~ ^[Yy]$ ]]; then
-                echo "    スキップ: .claude/agents/$file"
-                continue
+            if [ "$FORCE_OVERWRITE" = true ]; then
+                echo -e "    ${YELLOW}既存ファイルを上書き: .claude/agents/$file${NC}"
+            else
+                if ! should_overwrite ".claude/agents/$file"; then
+                    echo "    スキップ: .claude/agents/$file"
+                    continue
+                fi
             fi
         fi
 
@@ -175,14 +217,19 @@ if download_file ".claude/settings.json" "$temp_file"; then
     target_file="$TARGET_DIR/.claude/settings.json"
 
     if [ -f "$target_file" ]; then
-        echo -e "    ${YELLOW}警告: .claude/settings.json は既に存在します。上書きしますか？ (y/N)${NC}"
-        read -r response
-        if [[ ! "$response" =~ ^[Yy]$ ]]; then
-            echo "    スキップ: .claude/settings.json"
-        else
+        if [ "$FORCE_OVERWRITE" = true ]; then
+            echo -e "    ${YELLOW}既存ファイルを上書き: .claude/settings.json${NC}"
             mkdir -p "$(dirname "$target_file")"
             cp "$temp_file" "$target_file"
             echo -e "    ${GREEN}コピー完了: .claude/settings.json${NC}"
+        else
+            if should_overwrite ".claude/settings.json"; then
+                mkdir -p "$(dirname "$target_file")"
+                cp "$temp_file" "$target_file"
+                echo -e "    ${GREEN}コピー完了: .claude/settings.json${NC}"
+            else
+                echo "    スキップ: .claude/settings.json"
+            fi
         fi
     else
         mkdir -p "$(dirname "$target_file")"
@@ -201,11 +248,13 @@ for file in "${CURSOR_COMMANDS[@]}"; do
         target_file="$TARGET_DIR/.cursor/commands/$file"
 
         if [ -f "$target_file" ]; then
-            echo -e "    ${YELLOW}警告: .cursor/commands/$file は既に存在します。上書きしますか？ (y/N)${NC}"
-            read -r response
-            if [[ ! "$response" =~ ^[Yy]$ ]]; then
-                echo "    スキップ: .cursor/commands/$file"
-                continue
+            if [ "$FORCE_OVERWRITE" = true ]; then
+                echo -e "    ${YELLOW}既存ファイルを上書き: .cursor/commands/$file${NC}"
+            else
+                if ! should_overwrite ".cursor/commands/$file"; then
+                    echo "    スキップ: .cursor/commands/$file"
+                    continue
+                fi
             fi
         fi
 
@@ -222,16 +271,23 @@ if download_file ".cursor/mcp.json" "$temp_file"; then
     target_file="$TARGET_DIR/.cursor/mcp.json"
 
     if [ -f "$target_file" ]; then
-        echo -e "    ${YELLOW}警告: .cursor/mcp.json は既に存在します。上書きしますか？ (y/N)${NC}"
-        read -r response
-        if [[ ! "$response" =~ ^[Yy]$ ]]; then
-            echo "    スキップ: .cursor/mcp.json"
-        else
+        if [ "$FORCE_OVERWRITE" = true ]; then
+            echo -e "    ${YELLOW}既存ファイルを上書き: .cursor/mcp.json${NC}"
             mkdir -p "$(dirname "$target_file")"
             cp "$temp_file" "$target_file"
             # プレースホルダーを置換
             replace_placeholders "$target_file"
             echo -e "    ${GREEN}コピー完了: .cursor/mcp.json${NC}"
+        else
+            if should_overwrite ".cursor/mcp.json"; then
+                mkdir -p "$(dirname "$target_file")"
+                cp "$temp_file" "$target_file"
+                # プレースホルダーを置換
+                replace_placeholders "$target_file"
+                echo -e "    ${GREEN}コピー完了: .cursor/mcp.json${NC}"
+            else
+                echo "    スキップ: .cursor/mcp.json"
+            fi
         fi
     else
         mkdir -p "$(dirname "$target_file")"
@@ -250,14 +306,19 @@ if download_file ".cursor/settings.json" "$temp_file"; then
     target_file="$TARGET_DIR/.cursor/settings.json"
 
     if [ -f "$target_file" ]; then
-        echo -e "    ${YELLOW}警告: .cursor/settings.json は既に存在します。上書きしますか？ (y/N)${NC}"
-        read -r response
-        if [[ ! "$response" =~ ^[Yy]$ ]]; then
-            echo "    スキップ: .cursor/settings.json"
-        else
+        if [ "$FORCE_OVERWRITE" = true ]; then
+            echo -e "    ${YELLOW}既存ファイルを上書き: .cursor/settings.json${NC}"
             mkdir -p "$(dirname "$target_file")"
             cp "$temp_file" "$target_file"
             echo -e "    ${GREEN}コピー完了: .cursor/settings.json${NC}"
+        else
+            if should_overwrite ".cursor/settings.json"; then
+                mkdir -p "$(dirname "$target_file")"
+                cp "$temp_file" "$target_file"
+                echo -e "    ${GREEN}コピー完了: .cursor/settings.json${NC}"
+            else
+                echo "    スキップ: .cursor/settings.json"
+            fi
         fi
     else
         mkdir -p "$(dirname "$target_file")"
