@@ -102,6 +102,19 @@ CURSOR_COMMANDS=(
     "ui-design-advisor.md"
 )
 
+# プレースホルダー置換関数
+replace_placeholders() {
+    local file="$1"
+    if [ -f "$file" ]; then
+        # macOSとLinuxの両方で動作するsedコマンド
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            sed -i '' "s|{{PROJECT_PATH}}|$TARGET_DIR|g" "$file"
+        else
+            sed -i "s|{{PROJECT_PATH}}|$TARGET_DIR|g" "$file"
+        fi
+    fi
+}
+
 # ルートレベルのファイルをダウンロード
 echo -e "${YELLOW}ルートレベルのファイル:${NC}"
 for file in "${ROOT_FILES[@]}"; do
@@ -123,6 +136,10 @@ for file in "${ROOT_FILES[@]}"; do
         mkdir -p "$target_dir"
 
         cp "$temp_file" "$target_file"
+        # プレースホルダーを置換（.mcp.jsonの場合）
+        if [ "$file" = ".mcp.json" ]; then
+            replace_placeholders "$target_file"
+        fi
         echo -e "    ${GREEN}コピー完了: $file${NC}"
     fi
 done
@@ -212,11 +229,15 @@ if download_file ".cursor/mcp.json" "$temp_file"; then
         else
             mkdir -p "$(dirname "$target_file")"
             cp "$temp_file" "$target_file"
+            # プレースホルダーを置換
+            replace_placeholders "$target_file"
             echo -e "    ${GREEN}コピー完了: .cursor/mcp.json${NC}"
         fi
     else
         mkdir -p "$(dirname "$target_file")"
         cp "$temp_file" "$target_file"
+        # プレースホルダーを置換
+        replace_placeholders "$target_file"
         echo -e "    ${GREEN}コピー完了: .cursor/mcp.json${NC}"
     fi
 fi
