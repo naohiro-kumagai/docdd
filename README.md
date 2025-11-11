@@ -7,7 +7,7 @@ Cursor/Claude開発環境の設定ファイルとワークフロー定義を提�
 他のプロジェクトに設定ファイルを移行するには、以下のコマンドを実行するだけです：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/imaimai17468/docdd/main/migrate.sh | bash -s -- .
+curl -fsSL https://raw.githubusercontent.com/naohiro-kumagai/docdd/main/migrate.sh | bash -s -- .
 ```
 
 **リポジトリをクローンする必要はありません！**
@@ -16,23 +16,23 @@ curl -fsSL https://raw.githubusercontent.com/imaimai17468/docdd/main/migrate.sh 
 
 ```bash
 # カレントディレクトリに移行
-curl -fsSL https://raw.githubusercontent.com/imaimai17468/docdd/main/migrate.sh | bash -s -- .
+curl -fsSL https://raw.githubusercontent.com/naohiro-kumagai/docdd/main/migrate.sh | bash -s -- .
 
 # 特定のプロジェクトに移行
-curl -fsSL https://raw.githubusercontent.com/imaimai17468/docdd/main/migrate.sh | bash -s -- /Users/username/my-project
+curl -fsSL https://raw.githubusercontent.com/naohiro-kumagai/docdd/main/migrate.sh | bash -s -- /Users/username/my-project
 
 # 相対パスでも指定可能
-curl -fsSL https://raw.githubusercontent.com/imaimai17468/docdd/main/migrate.sh | bash -s -- ../my-project
+curl -fsSL https://raw.githubusercontent.com/naohiro-kumagai/docdd/main/migrate.sh | bash -s -- ../my-project
 
 # 既存ファイルを確認せずに上書き（--yes または -y オプション）
-curl -fsSL https://raw.githubusercontent.com/imaimai17468/docdd/main/migrate.sh | bash -s -- --yes /path/to/target-project
+curl -fsSL https://raw.githubusercontent.com/naohiro-kumagai/docdd/main/migrate.sh | bash -s -- --yes /path/to/target-project
 ```
 
 ### 別の実行方法
 
 ```bash
 # プロセス置換方式（bash 4.0+）
-bash <(curl -fsSL https://raw.githubusercontent.com/imaimai17468/docdd/main/migrate.sh) /path/to/target-project
+bash <(curl -fsSL https://raw.githubusercontent.com/naohiro-kumagai/docdd/main/migrate.sh) /path/to/target-project
 ```
 
 ## 移行されるファイル
@@ -171,7 +171,7 @@ bash <(curl -fsSL https://raw.githubusercontent.com/imaimai17468/docdd/main/migr
 `--yes`（または`-y`、`--force`、`-f`）オプションを使用すると、既存ファイルを確認せずに上書きします：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/imaimai17468/docdd/main/migrate.sh | bash -s -- --yes /path/to/target-project
+curl -fsSL https://raw.githubusercontent.com/naohiro-kumagai/docdd/main/migrate.sh | bash -s -- --yes /path/to/target-project
 ```
 
 **注意**: パイプ経由で実行しても、`--yes`オプションがない場合は対話的に確認されます。端末から`y`または`n`を入力してください。
@@ -224,7 +224,7 @@ ls -la /path/to/target-project
 
 ```bash
 # GitHubへの接続確認
-curl -I https://raw.githubusercontent.com/imaimai17468/docdd/main/migrate.sh
+curl -I https://raw.githubusercontent.com/naohiro-kumagai/docdd/main/migrate.sh
 ```
 
 ## 詳細ドキュメント

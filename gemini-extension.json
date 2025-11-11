@@ -1,0 +1,131 @@
+{
+  "name": "docdd-workflow",
+  "version": "1.0.0",
+  "description": "Document-Driven Development (DocDD) workflow system for Gemini CLI - A comprehensive 11-phase development framework with MCP integration",
+  "author": "naohiro-kumagai",
+  "repository": "https://github.com/naohiro-kumagai/docdd",
+  "license": "MIT",
+
+  "config": {
+    "mcpServers": {
+      "context7": {
+        "transport": {
+          "type": "stdio",
+          "command": "npx",
+          "args": ["-y", "@upstash/context7-mcp@latest"]
+        },
+        "autoEnable": true,
+        "description": "Context7 MCP for library documentation retrieval"
+      },
+      "serena": {
+        "transport": {
+          "type": "stdio",
+          "command": "uvx",
+          "args": [
+            "--from",
+            "git+https://github.com/oraios/serena",
+            "serena",
+            "start-mcp-server",
+            "--context",
+            "ide-assistant",
+            "--project",
+            ".",
+            "--enable-gui-log-window",
+            "false",
+            "--enable-web-dashboard",
+            "false"
+          ]
+        },
+        "autoEnable": true,
+        "description": "Serena MCP for symbol-based code editing"
+      },
+      "kiri": {
+        "transport": {
+          "type": "stdio",
+          "command": "npx",
+          "args": [
+            "kiri-mcp-server@latest",
+            "--repo",
+            ".",
+            "--db",
+            ".kiri/index.duckdb",
+            "--watch"
+          ]
+        },
+        "autoEnable": true,
+        "description": "Kiri MCP for semantic code search and dependency analysis"
+      },
+      "chrome-devtools": {
+        "transport": {
+          "type": "stdio",
+          "command": "npx",
+          "args": ["chrome-devtools-mcp@latest"]
+        },
+        "autoEnable": false,
+        "description": "Chrome DevTools MCP for Phase 9B browser verification"
+      },
+      "next-devtools": {
+        "transport": {
+          "type": "stdio",
+          "command": "npx",
+          "args": ["-y", "next-devtools-mcp@latest"]
+        },
+        "autoEnable": false,
+        "description": "Next.js Runtime MCP for Phase 9A runtime verification"
+      }
+    },
+
+    "coreTools": {
+      "fileRead": { "enabled": true },
+      "fileWrite": { "enabled": true },
+      "grep": { "enabled": true },
+      "terminal": { "enabled": true },
+      "webSearch": { "enabled": true }
+    }
+  },
+
+  "commands": ".gemini/commands",
+  
+  "context": "GEMINI.md",
+
+  "installation": {
+    "preInstall": [],
+    "postInstall": [
+      "echo 'DocDD workflow installed successfully!'",
+      "echo 'Available commands:'",
+      "echo '  /adr:record - Record architecture decisions'",
+      "echo '  /adr:search - Search ADRs'",
+      "echo '  /test:gen - Generate unit tests'",
+      "echo '  /ui:review - Review UI/UX design'",
+      "echo '  /ui:propose - Propose UI improvements'",
+      "echo '  /refactor:review - Review code for refactoring'",
+      "echo '  /doc:add - Add documentation'",
+      "echo '  /lint:fix - Fix linting errors'",
+      "echo '  /git:commit - Generate commit message'",
+      "echo '  /arch:design - Design system architecture'",
+      "echo '  /story:create - Create Storybook stories'",
+      "echo '  /api:design - Design API endpoints'",
+      "echo '  /api:test - Generate API integration tests'",
+      "echo '  /react:component - Create React component'",
+      "echo '  /react:hook - Create custom React Hook'",
+      "echo ''",
+      "echo 'Start a session with: gemini'",
+      "echo 'Enable IDE integration: /ide install && /ide enable'"
+    ]
+  },
+
+  "keywords": [
+    "docdd",
+    "document-driven-development",
+    "workflow",
+    "architecture-decision-records",
+    "adr",
+    "mcp",
+    "model-context-protocol",
+    "development-automation",
+    "ai-assisted-development",
+    "typescript",
+    "react",
+    "nextjs"
+  ]
+}

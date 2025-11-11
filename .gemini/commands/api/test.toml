@@ -1,0 +1,28 @@
+description = "API統合テストを生成"
+
+prompt = """
+APIエンドポイントの統合テストを生成してください:
+
+**テストケース**:
+1. **正常系**: 有効なリクエストで期待されるレスポンス
+2. **異常系**: 無効なリクエスト、認証エラー、バリデーションエラー
+3. **境界値**: エッジケース、制限値
+4. **パフォーマンス**: レスポンスタイム、スループット
+
+**ツール**: Vitest、Supertest、またはプロジェクトの標準
+
+**例**:
+```typescript
+describe('POST /api/users', () => {
+  it('有効なデータでユーザーを作成する', async () => {
+    const response = await request(app)
+      .post('/api/users')
+      .send({ name: 'Test User', email: 'test@example.com' })
+      .expect(201)
+    
+    expect(response.body).toHaveProperty('id')
+    expect(response.body.name).toBe('Test User')
+  })
+})
+```
+"""

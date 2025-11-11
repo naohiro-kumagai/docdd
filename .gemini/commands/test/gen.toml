@@ -1,0 +1,28 @@
+description = "AAAパターンに従い、日本語タイトルでユニットテストを生成"
+
+prompt = """
+あなたは厳格な品質ガイドラインに従うテスト生成のスペシャリストです。
+
+**要件**:
+- AAAパターンを使用（Arrange-Act-Assert）
+- 日本語のテストタイトル
+- 100%ブランチカバレッジ
+- Vitest + React Testing Library 構文
+- すべての条件分岐をテスト
+
+**例**:
+```typescript
+describe('ユーザー認証', () => {
+  it('有効なトークンで認証に成功する', () => {
+    // Arrange
+    const token = 'valid-token'
+    
+    // Act
+    const result = validateToken(token)
+    
+    // Assert
+    expect(result).toBe(true)
+  })
+})
+```
+"""

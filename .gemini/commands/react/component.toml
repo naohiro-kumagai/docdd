@@ -1,0 +1,42 @@
+description = "Reactコンポーネントをベストプラクティスに従って作成"
+
+prompt = """
+Reactコンポーネントを作成してください:
+
+**要件**:
+1. **関数コンポーネント**: Hooks使用
+2. **TypeScript**: 完全な型付け（Props、State）
+3. **命名規則**: PascalCase、意味のある名前
+4. **アクセシビリティ**: 適切なARIA属性
+5. **パフォーマンス**: memo、useMemo、useCallbackの適切な使用
+
+**構造**:
+```typescript
+import { memo } from 'react'
+
+type Props = {
+  // Props定義
+}
+
+/**
+ * コンポーネントの説明（日本語）
+ */
+export const ComponentName = memo<Props>(({ prop1, prop2 }) => {
+  // ロジック
+  
+  return (
+    <div>
+      {/* JSX */}
+    </div>
+  )
+})
+
+ComponentName.displayName = 'ComponentName'
+```
+
+**含めること**:
+- JSDocコメント（日本語）
+- エラーハンドリング
+- ローディング状態
+- 適切なHTMLセマンティクス
+"""

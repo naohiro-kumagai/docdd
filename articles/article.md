@@ -66,7 +66,7 @@ DocDDは以下のファイル構成で、プロジェクトに標準化された
 
 DocDDのソースコードとドキュメントは、以下のGitHubリポジトリで公開されています：
 
-**[https://github.com/imaimai17468/docdd](https://github.com/imaimai17468/docdd)**
+**[https://github.com/naohiro-kumagai/docdd](https://github.com/naohiro-kumagai/docdd)**
 
 リポジトリには、設定ファイル、移行スクリプト、詳細なドキュメントが含まれています。
 
@@ -79,10 +79,10 @@ DocDDを既存プロジェクトに導入するのは簡単です。
 
 ```bash
 # カレントディレクトリに移行
-curl -fsSL https://raw.githubusercontent.com/imaimai17468/docdd/main/migrate.sh | bash -s -- .
+curl -fsSL https://raw.githubusercontent.com/naohiro-kumagai/docdd/main/migrate.sh | bash -s -- .
 
 # 特定のプロジェクトに移行
-curl -fsSL https://raw.githubusercontent.com/imaimai17468/docdd/main/migrate.sh | bash -s -- /path/to/target-project
+curl -fsSL https://raw.githubusercontent.com/naohiro-kumagai/docdd/main/migrate.sh | bash -s -- /path/to/target-project
 ```
 
 ## 既存ファイルがある場合
@@ -91,10 +91,10 @@ curl -fsSL https://raw.githubusercontent.com/imaimai17468/docdd/main/migrate.sh 
 
 ```bash
 # 対話的に確認
-curl -fsSL https://raw.githubusercontent.com/imaimai17468/docdd/main/migrate.sh | bash -s -- /path/to/target-project
+curl -fsSL https://raw.githubusercontent.com/naohiro-kumagai/docdd/main/migrate.sh | bash -s -- /path/to/target-project
 
 # 確認せずに上書き（--yes オプション）
-curl -fsSL https://raw.githubusercontent.com/imaimai17468/docdd/main/migrate.sh | bash -s -- --yes /path/to/target-project
+curl -fsSL https://raw.githubusercontent.com/naohiro-kumagai/docdd/main/migrate.sh | bash -s -- --yes /path/to/target-project
 ```
 
 ## 移行されるファイル
@@ -600,7 +600,7 @@ DocDDは継続的に改善されており、以下のような機能追加が予
 
 ## 参考リンク
 
-- [DocDD GitHubリポジトリ](https://github.com/imaimai17468/docdd)
+- [DocDD GitHubリポジトリ](https://github.com/naohiro-kumagai/docdd)
 - [MCP公式ドキュメント](https://modelcontextprotocol.io/)
 - [Cursor公式サイト](https://cursor.sh/)
 - [Claude Code公式サイト](https://claude.ai/code)

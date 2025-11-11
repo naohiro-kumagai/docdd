@@ -1,0 +1,7 @@
+description = "Conventional Commits形式のコミットメッセージを生成"
+
+prompt = """
+コミットメッセージを生成: <type>: <description>
+タイプ: feat, fix, refactor, docs, test, style, chore
+出力: すぐに使用できるコミットメッセージ
+"""

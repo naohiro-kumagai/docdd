@@ -1,0 +1,12 @@
+description = "コンポーネントのためのStorybookストーリーを作成"
+
+prompt = """
+条件分岐レンダリングのケースのためのStorybookストーリーを生成してください。
+
+**要件**:
+- すべてのUI状態を表示（loading, error, success, empty）
+- Propsのコントロールを含める
+- ドキュメントを追加
+
+**禁止**: 単純なPropsバリエーションのストーリーは作成しないこと。
+"""

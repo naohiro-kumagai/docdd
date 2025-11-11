@@ -1,13 +1,13 @@
 #!/bin/bash
 
 # DocDDプロジェクトの設定ファイルを別プロジェクトに移行するスクリプト
-# 使用方法: curl -fsSL https://raw.githubusercontent.com/imaimai17468/docdd/main/migrate.sh | bash -s -- <ターゲットプロジェクトのパス>
-# または: bash <(curl -fsSL https://raw.githubusercontent.com/imaimai17468/docdd/main/migrate.sh) <ターゲットプロジェクトのパス>
+# 使用方法: curl -fsSL https://raw.githubusercontent.com/naohiro-kumagai/docdd/main/migrate.sh | bash -s -- <ターゲットプロジェクトのパス>
+# または: bash <(curl -fsSL https://raw.githubusercontent.com/naohiro-kumagai/docdd/main/migrate.sh) <ターゲットプロジェクトのパス>
 
 set -e
 
 # GitHubリポジトリ情報
-REPO_OWNER="imaimai17468"
+REPO_OWNER="naohiro-kumagai"
 REPO_NAME="docdd"
 BRANCH="main"
 BASE_URL="https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${BRANCH}"
@@ -99,6 +99,11 @@ ROOT_FILES=(
     "MCP_REFERENCE.md"
     ".cursorrules"
     ".mcp.json"
+    "GEMINI.md"
+    "GEMINI_README.md"
+    "GEMINI_CLI_SUMMARY.md"
+    "MIGRATION_GUIDE.md"
+    "gemini-extension.json"
 )
 
 # .claude/agents/ のファイル
@@ -121,6 +126,25 @@ CURSOR_COMMANDS=(
     "storybook-story-creator.md"
     "test-guideline-enforcer.md"
     "ui-design-advisor.md"
+)
+
+# .gemini/commands/ のファイル
+GEMINI_COMMANDS=(
+    "adr/record.toml"
+    "adr/search.toml"
+    "api/design.toml"
+    "api/test.toml"
+    "arch/design.toml"
+    "doc/add.toml"
+    "git/commit.toml"
+    "lint/fix.toml"
+    "react/component.toml"
+    "react/hook.toml"
+    "refactor/review.toml"
+    "story/create.toml"
+    "test/gen.toml"
+    "ui/propose.toml"
+    "ui/review.toml"
 )
 
 # プレースホルダー置換関数
@@ -327,6 +351,68 @@ if download_file ".cursor/settings.json" "$temp_file"; then
     fi
 fi
 
+# .gemini/commands/ のファイルをダウンロード
+echo ""
+echo -e "${YELLOW}.gemini/commands/ のファイル:${NC}"
+mkdir -p "$TARGET_DIR/.gemini/commands"
+for file in "${GEMINI_COMMANDS[@]}"; do
+    temp_file="$TEMP_DIR/gemini-cmd-${file//\//-}"
+    if download_file ".gemini/commands/$file" "$temp_file"; then
+        target_file="$TARGET_DIR/.gemini/commands/$file"
+
+        if [ -f "$target_file" ]; then
+            if [ "$FORCE_OVERWRITE" = true ]; then
+                echo -e "    ${YELLOW}既存ファイルを上書き: .gemini/commands/$file${NC}"
+            else
+                if ! should_overwrite ".gemini/commands/$file"; then
+                    echo "    スキップ: .gemini/commands/$file"
+                    continue
+                fi
+            fi
+        fi
+
+        # サブディレクトリも作成
+        mkdir -p "$(dirname "$target_file")"
+        cp "$temp_file" "$target_file"
+        echo -e "    ${GREEN}コピー完了: .gemini/commands/$file${NC}"
+    fi
+done
+
+# .gemini/settings.json をダウンロード
+echo ""
+echo -e "${YELLOW}.gemini/settings.json:${NC}"
+temp_file="$TEMP_DIR/.gemini-settings.json"
+if download_file ".gemini/settings.json" "$temp_file"; then
+    target_file="$TARGET_DIR/.gemini/settings.json"
+
+    if [ -f "$target_file" ]; then
+        if [ "$FORCE_OVERWRITE" = true ]; then
+            echo -e "    ${YELLOW}既存ファイルを上書き: .gemini/settings.json${NC}"
+            mkdir -p "$(dirname "$target_file")"
+            cp "$temp_file" "$target_file"
+            # プレースホルダーを置換
+            replace_placeholders "$target_file"
+            echo -e "    ${GREEN}コピー完了: .gemini/settings.json${NC}"
+        else
+            if should_overwrite ".gemini/settings.json"; then
+                mkdir -p "$(dirname "$target_file")"
+                cp "$temp_file" "$target_file"
+                # プレースホルダーを置換
+                replace_placeholders "$target_file"
+                echo -e "    ${GREEN}コピー完了: .gemini/settings.json${NC}"
+            else
+                echo "    スキップ: .gemini/settings.json"
+            fi
+        fi
+    else
+        mkdir -p "$(dirname "$target_file")"
+        cp "$temp_file" "$target_file"
+        # プレースホルダーを置換
+        replace_placeholders "$target_file"
+        echo -e "    ${GREEN}コピー完了: .gemini/settings.json${NC}"
+    fi
+fi
+
 echo ""
 echo -e "${GREEN}移行が完了しました！${NC}"
 echo ""
@@ -340,8 +426,17 @@ echo "  - .claude/settings.json (Claude設定)"
 echo "  - .cursor/commands/*.md (Cursorコマンド定義)"
 echo "  - .cursor/mcp.json (Cursor MCP設定)"
 echo "  - .cursor/settings.json (Cursor設定)"
+echo "  - GEMINI.md (Gemini CLI戦略的コンテキスト)"
+echo "  - GEMINI_README.md (Gemini CLI使用ガイド)"
+echo "  - GEMINI_CLI_SUMMARY.md (Gemini CLI実装サマリー)"
+echo "  - MIGRATION_GUIDE.md (Gemini CLI移行ガイド)"
+echo "  - gemini-extension.json (Gemini CLI拡張マニフェスト)"
+echo "  - .gemini/settings.json (Gemini CLI設定)"
+echo "  - .gemini/commands/*.toml (Gemini CLIカスタムコマンド 15個)"
 echo ""
 echo "次のステップ:"
 echo "  1. ターゲットプロジェクトで設定を確認してください"
 echo "  2. 必要に応じて設定をカスタマイズしてください"
 echo "  3. .claude/settings.local.json は個人設定なので、各自で設定してください"
+echo "  4. Gemini CLIを使用する場合は、拡張機能をインストールしてください:"
+echo "     cd <ターゲットプロジェクト> && gemini extensions install --path=."

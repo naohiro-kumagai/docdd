@@ -1,0 +1,79 @@
+{
+  "tools": {
+    "core": [
+      "fileRead",
+      "fileWrite",
+      "grep",
+      "terminal",
+      "webSearch"
+    ]
+  },
+  "mcpServers": {
+    "context7": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp@latest"
+      ],
+      "autoEnable": true,
+      "description": "Context7 MCP for library documentation retrieval"
+    },
+    "serena": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/oraios/serena",
+        "serena",
+        "start-mcp-server",
+        "--context",
+        "ide-assistant",
+        "--project",
+        ".",
+        "--enable-gui-log-window",
+        "false",
+        "--enable-web-dashboard",
+        "false"
+      ],
+      "autoEnable": true,
+      "description": "Serena MCP for symbol-based code editing"
+    },
+    "kiri": {
+      "command": "npx",
+      "args": [
+        "kiri-mcp-server@latest",
+        "--repo",
+        ".",
+        "--db",
+        ".kiri/index.duckdb",
+        "--watch"
+      ],
+      "autoEnable": true,
+      "description": "Kiri MCP for semantic code search and dependency analysis"
+    },
+    "chrome-devtools": {
+      "command": "npx",
+      "args": [
+        "chrome-devtools-mcp@latest"
+      ],
+      "autoEnable": false,
+      "description": "Chrome DevTools MCP for browser verification (Phase 9B)"
+    },
+    "next-devtools": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "next-devtools-mcp@latest"
+      ],
+      "autoEnable": false,
+      "description": "Next.js Runtime MCP for runtime error verification (Phase 9A)"
+    }
+  },
+  "security": {
+    "auth": {
+      "selectedType": "oauth-personal"
+    }
+  },
+  "ui": {
+    "theme": "Default"
+  }
+}

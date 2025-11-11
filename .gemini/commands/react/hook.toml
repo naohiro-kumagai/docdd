@@ -1,0 +1,53 @@
+description = "カスタムReact Hookを作成"
+
+prompt = """
+カスタムReact Hookを作成してください:
+
+**要件**:
+1. **命名規則**: use から始まる名前
+2. **TypeScript**: 完全な型付け
+3. **依存関係**: 適切な依存配列
+4. **メモ化**: 不要な再計算を避ける
+5. **クリーンアップ**: useEffect のクリーンアップ関数
+
+**構造**:
+```typescript
+import { useState, useEffect, useCallback } from 'react'
+
+type Options = {
+  // オプション定義
+}
+
+type ReturnType = {
+  // 戻り値の型定義
+}
+
+/**
+ * カスタムHookの説明（日本語）
+ * 
+ * @param options - オプション
+ * @returns 戻り値の説明
+ * 
+ * @example
+ * const { data, loading, error } = useCustomHook({ option: 'value' })
+ */
+export const useCustomHook = (options: Options): ReturnType => {
+  const [state, setState] = useState(initialValue)
+  
+  useEffect(() => {
+    // エフェクトロジック
+    
+    return () => {
+      // クリーンアップ
+    }
+  }, [dependencies])
+  
+  return { state, setState }
+}
+```
+
+**含めること**:
+- JSDocコメント（日本語）
+- 使用例
+- エラーハンドリング
+"""
