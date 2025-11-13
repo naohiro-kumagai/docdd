@@ -104,6 +104,7 @@ ROOT_FILES=(
     "GEMINI_CLI_SUMMARY.md"
     "MIGRATION_GUIDE.md"
     "gemini-extension.json"
+    "ARCHITECTURE.md"
 )
 
 # .claude/agents/ のファイル
