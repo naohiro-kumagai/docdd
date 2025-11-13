@@ -1,0 +1,45 @@
+{
+  // GitHub Copilot設定
+  "github.copilot.enable": {
+    "*": true,
+    "yaml": true,
+    "plaintext": true,
+    "markdown": true
+  },
+  
+  // Copilot Chat設定
+  "chat.commandCenter.enabled": true,
+  "chat.experimental.quickQuestion.enable": true,
+  
+  // エージェントモード設定（MCPツール使用時に必要）
+  "chat.agent.mode": "enabled",
+  
+  // プロンプトファイル（実験的機能）
+  "chat.promptFiles": true,
+  
+  // カスタムチャットモード（実験的機能）
+  "chat.useAgentsMdFile": true,
+  
+  // ターミナルエージェント設定
+  "chat.tools.terminal.enabled": true,
+  
+  // エディター設定
+  "editor.inlineSuggest.enabled": true,
+  "editor.quickSuggestions": {
+    "other": true,
+    "comments": true,
+    "strings": true
+  },
+  
+  // TypeScript/JavaScript設定
+  "typescript.suggest.completeFunctionCalls": true,
+  "javascript.suggest.completeFunctionCalls": true,
+  
+  // 推奨拡張機能
+  "extensions.ignoreRecommendations": false,
+  "recommendations": [
+    "GitHub.copilot",
+    "GitHub.copilot-chat"
+  ],
+  "chat.mcp.access": "all"
+}

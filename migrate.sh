@@ -105,6 +105,7 @@ ROOT_FILES=(
     "MIGRATION_GUIDE.md"
     "gemini-extension.json"
     "ARCHITECTURE.md"
+    "VSCODE_COPILOT_SETUP.md"
 )
 
 # .claude/agents/ のファイル
@@ -146,6 +147,38 @@ GEMINI_COMMANDS=(
     "test/gen.toml"
     "ui/propose.toml"
     "ui/review.toml"
+)
+
+# .github/agents/ のファイル (VS Code Copilot)
+GITHUB_AGENTS=(
+    "adr-manager.md"
+    "onboarding-specialist.md"
+    "refactor-specialist.md"
+    "spec-creator.md"
+    "story-creator.md"
+    "test-enforcer.md"
+    "ui-advisor.md"
+)
+
+# .github/instructions/ のファイル (VS Code Copilot)
+GITHUB_INSTRUCTIONS=(
+    "phase1-investigation.instructions.md"
+    "react.instructions.md"
+    "typescript.instructions.md"
+)
+
+# .github/prompts/ のファイル (VS Code Copilot)
+GITHUB_PROMPTS=(
+    "adr-record.md"
+    "test-gen.md"
+    "ui-review.md"
+)
+
+# .vscode/ のファイル
+VSCODE_FILES=(
+    "markdown.code-snippets"
+    "mcp.json"
+    "settings.json"
 )
 
 # プレースホルダー置換関数
@@ -414,6 +447,139 @@ if download_file ".gemini/settings.json" "$temp_file"; then
     fi
 fi
 
+# .github/agents/ のファイルをダウンロード (VS Code Copilot)
+echo ""
+echo -e "${YELLOW}.github/agents/ のファイル (VS Code Copilot):${NC}"
+mkdir -p "$TARGET_DIR/.github/agents"
+for file in "${GITHUB_AGENTS[@]}"; do
+    temp_file="$TEMP_DIR/github-agent-$file"
+    if download_file ".github/agents/$file" "$temp_file"; then
+        target_file="$TARGET_DIR/.github/agents/$file"
+
+        if [ -f "$target_file" ]; then
+            if [ "$FORCE_OVERWRITE" = true ]; then
+                echo -e "    ${YELLOW}既存ファイルを上書き: .github/agents/$file${NC}"
+            else
+                if ! should_overwrite ".github/agents/$file"; then
+                    echo "    スキップ: .github/agents/$file"
+                    continue
+                fi
+            fi
+        fi
+
+        cp "$temp_file" "$target_file"
+        echo -e "    ${GREEN}コピー完了: .github/agents/$file${NC}"
+    fi
+done
+
+# .github/copilot-instructions.md をダウンロード
+echo ""
+echo -e "${YELLOW}.github/copilot-instructions.md:${NC}"
+temp_file="$TEMP_DIR/github-copilot-instructions.md"
+if download_file ".github/copilot-instructions.md" "$temp_file"; then
+    target_file="$TARGET_DIR/.github/copilot-instructions.md"
+
+    if [ -f "$target_file" ]; then
+        if [ "$FORCE_OVERWRITE" = true ]; then
+            echo -e "    ${YELLOW}既存ファイルを上書き: .github/copilot-instructions.md${NC}"
+            mkdir -p "$(dirname "$target_file")"
+            cp "$temp_file" "$target_file"
+            echo -e "    ${GREEN}コピー完了: .github/copilot-instructions.md${NC}"
+        else
+            if should_overwrite ".github/copilot-instructions.md"; then
+                mkdir -p "$(dirname "$target_file")"
+                cp "$temp_file" "$target_file"
+                echo -e "    ${GREEN}コピー完了: .github/copilot-instructions.md${NC}"
+            else
+                echo "    スキップ: .github/copilot-instructions.md"
+            fi
+        fi
+    else
+        mkdir -p "$(dirname "$target_file")"
+        cp "$temp_file" "$target_file"
+        echo -e "    ${GREEN}コピー完了: .github/copilot-instructions.md${NC}"
+    fi
+fi
+
+# .github/instructions/ のファイルをダウンロード
+echo ""
+echo -e "${YELLOW}.github/instructions/ のファイル:${NC}"
+mkdir -p "$TARGET_DIR/.github/instructions"
+for file in "${GITHUB_INSTRUCTIONS[@]}"; do
+    temp_file="$TEMP_DIR/github-instruction-$file"
+    if download_file ".github/instructions/$file" "$temp_file"; then
+        target_file="$TARGET_DIR/.github/instructions/$file"
+
+        if [ -f "$target_file" ]; then
+            if [ "$FORCE_OVERWRITE" = true ]; then
+                echo -e "    ${YELLOW}既存ファイルを上書き: .github/instructions/$file${NC}"
+            else
+                if ! should_overwrite ".github/instructions/$file"; then
+                    echo "    スキップ: .github/instructions/$file"
+                    continue
+                fi
+            fi
+        fi
+
+        cp "$temp_file" "$target_file"
+        echo -e "    ${GREEN}コピー完了: .github/instructions/$file${NC}"
+    fi
+done
+
+# .github/prompts/ のファイルをダウンロード
+echo ""
+echo -e "${YELLOW}.github/prompts/ のファイル:${NC}"
+mkdir -p "$TARGET_DIR/.github/prompts"
+for file in "${GITHUB_PROMPTS[@]}"; do
+    temp_file="$TEMP_DIR/github-prompt-$file"
+    if download_file ".github/prompts/$file" "$temp_file"; then
+        target_file="$TARGET_DIR/.github/prompts/$file"
+
+        if [ -f "$target_file" ]; then
+            if [ "$FORCE_OVERWRITE" = true ]; then
+                echo -e "    ${YELLOW}既存ファイルを上書き: .github/prompts/$file${NC}"
+            else
+                if ! should_overwrite ".github/prompts/$file"; then
+                    echo "    スキップ: .github/prompts/$file"
+                    continue
+                fi
+            fi
+        fi
+
+        cp "$temp_file" "$target_file"
+        echo -e "    ${GREEN}コピー完了: .github/prompts/$file${NC}"
+    fi
+done
+
+# .vscode/ のファイルをダウンロード
+echo ""
+echo -e "${YELLOW}.vscode/ のファイル:${NC}"
+mkdir -p "$TARGET_DIR/.vscode"
+for file in "${VSCODE_FILES[@]}"; do
+    temp_file="$TEMP_DIR/vscode-$file"
+    if download_file ".vscode/$file" "$temp_file"; then
+        target_file="$TARGET_DIR/.vscode/$file"
+
+        if [ -f "$target_file" ]; then
+            if [ "$FORCE_OVERWRITE" = true ]; then
+                echo -e "    ${YELLOW}既存ファイルを上書き: .vscode/$file${NC}"
+            else
+                if ! should_overwrite ".vscode/$file"; then
+                    echo "    スキップ: .vscode/$file"
+                    continue
+                fi
+            fi
+        fi
+
+        cp "$temp_file" "$target_file"
+        # プレースホルダーを置換（mcp.jsonの場合）
+        if [ "$file" = "mcp.json" ]; then
+            replace_placeholders "$target_file"
+        fi
+        echo -e "    ${GREEN}コピー完了: .vscode/$file${NC}"
+    fi
+done
+
 echo ""
 echo -e "${GREEN}移行が完了しました！${NC}"
 echo ""
@@ -434,6 +600,14 @@ echo "  - MIGRATION_GUIDE.md (Gemini CLI移行ガイド)"
 echo "  - gemini-extension.json (Gemini CLI拡張マニフェスト)"
 echo "  - .gemini/settings.json (Gemini CLI設定)"
 echo "  - .gemini/commands/*.toml (Gemini CLIカスタムコマンド 15個)"
+echo "  - VSCODE_COPILOT_SETUP.md (VS Code Copilotセットアップガイド)"
+echo "  - .github/copilot-instructions.md (VS Code Copilotメイン設定)"
+echo "  - .github/agents/*.md (VS Code Copilotエージェント 7個)"
+echo "  - .github/instructions/*.md (VS Code Copilot指示ファイル 3個)"
+echo "  - .github/prompts/*.md (VS Code Copilotプロンプト 3個)"
+echo "  - .vscode/markdown.code-snippets (Markdownスニペット)"
+echo "  - .vscode/mcp.json (VS Code MCP設定)"
+echo "  - .vscode/settings.json (VS Code設定)"
 echo ""
 echo "次のステップ:"
 echo "  1. ターゲットプロジェクトで設定を確認してください"
@@ -441,3 +615,4 @@ echo "  2. 必要に応じて設定をカスタマイズしてください"
 echo "  3. .claude/settings.local.json は個人設定なので、各自で設定してください"
 echo "  4. Gemini CLIを使用する場合は、拡張機能をインストールしてください:"
 echo "     cd <ターゲットプロジェクト> && gemini extensions install --path=."
+echo "  5. VS Code Copilotを使用する場合は、VS Codeで該当プロジェクトを開いてください"

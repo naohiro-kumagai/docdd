@@ -1,0 +1,349 @@
+{
+  "Copilot: ADR記録": {
+    "prefix": "cadr",
+    "body": [
+      "新しいアーキテクチャ決定記録（ADR）を作成してください。",
+      "",
+      "## 決定の詳細",
+      "- タイトル: ${1:決定のタイトル}",
+      "- 問題: ${2:解決しようとしている問題}",
+      "- 決定: ${3:選択した解決策}",
+      "- 根拠: ${4:この決定を選んだ理由}",
+      "- 影響を受けるファイル: ${5:ファイルパス}"
+    ],
+    "description": "新しいADRを記録するプロンプト"
+  },
+  
+  "Test Generation Prompt": {
+    "prefix": "ctest",
+    "body": [
+      "## タスク: テスト生成",
+      "",
+      "以下のファイルにテストを追加してください:",
+      "- ファイル: ${1:path/to/file.ts}",
+      "",
+      "### 要件",
+      "- AAAパターン（Arrange-Act-Assert）を使用",
+      "- 日本語のテストタイトル",
+      "- エッジケースを含む100%ブランチカバレッジ",
+      "- Vitest + React Testing Libraryを使用",
+      "",
+      "### テスト対象",
+      "${2:説明}",
+      ""
+    ],
+    "description": "テスト生成プロンプト"
+  },
+  
+  "Phase 2: Architecture Design": {
+    "prefix": "cp2",
+    "body": [
+      "## Phase 2: Architecture Design",
+      "",
+      "### タスク",
+      "${1:機能説明}",
+      "",
+      "### 設計要件",
+      "- [ ] ファイル配置とディレクトリ構造を設計",
+      "- [ ] 状態管理アプローチを定義",
+      "- [ ] コンポーネント階層とデータフローを設計",
+      "- [ ] 重要な決定をADRとして文書化",
+      "",
+      "必要に応じて @onboarding-specialist または @spec-creator を起動してください",
+      ""
+    ],
+    "description": "Phase 2: Architecture Design スターター"
+  },
+  
+  "Phase 3: UI/UX Design": {
+    "prefix": "cp3",
+    "body": [
+      "## Phase 3: UI/UX Design",
+      "",
+      "### UI変更内容",
+      "${1:UI説明}",
+      "",
+      "### レビュー項目",
+      "- [ ] プロジェクトスタイルガイドに対してデザインをレビュー",
+      "- [ ] アクセシビリティコンプライアンス（ARIA、キーボードナビゲーション）を確保",
+      "- [ ] レスポンシブデザインを検証（モバイル、タブレット、デスクトップ）",
+      "",
+      "@ui-advisor でレビューしてください",
+      ""
+    ],
+    "description": "Phase 3: UI/UX Design スターター"
+  },
+  
+  "Phase 4: Planning": {
+    "prefix": "cp4",
+    "body": [
+      "## Phase 4: Planning",
+      "",
+      "### 機能",
+      "${1:機能説明}",
+      "",
+      "### 要件",
+      "- 作業を細かいタスクに分解",
+      "- 実装順序を定義",
+      "- 依存関係を特定",
+      "- すべての要件が明確であることを確認",
+      "",
+      "TodoListを作成して進捗を管理してください",
+      ""
+    ],
+    "description": "Phase 4: Planning スターター"
+  },
+  
+  "Phase 5: Implementation": {
+    "prefix": "cp5",
+    "body": [
+      "## Phase 5: Implementation",
+      "",
+      "### 実装タスク",
+      "${1:実装内容}",
+      "",
+      "### 実装ルール",
+      "- Serena MCPでシンボルベース編集を実行",
+      "- バレルインポートを使用しない（明示的な@/インポート）",
+      "- 厳格なTypeScript型付け（any禁止、@ts-ignore禁止）",
+      "- 日本語コメントで意図を文書化",
+      "",
+      "必要に応じて @refactor-specialist を起動してください",
+      ""
+    ],
+    "description": "Phase 5: Implementation スターター"
+  },
+  
+  "Phase 6: Testing & Stories": {
+    "prefix": "cp6",
+    "body": [
+      "## Phase 6: Testing & Stories",
+      "",
+      "### テスト対象",
+      "${1:ファイルパス}",
+      "",
+      "### 要件",
+      "- AAAパターンでテストを生成",
+      "- 日本語のテストタイトル",
+      "- 条件分岐にStorybookストーリーを作成",
+      "- クリティカルパスの100%ブランチカバレッジ",
+      "",
+      "@test-enforcer と @story-creator を起動してください",
+      ""
+    ],
+    "description": "Phase 6: Testing & Stories スターター"
+  },
+  
+  "Phase 7: Code Review": {
+    "prefix": "cp7",
+    "body": [
+      "## Phase 7: Code Review",
+      "",
+      "### レビュー対象",
+      "${1:ファイル/ディレクトリ}",
+      "",
+      "### チェック項目",
+      "- [ ] SOLIDコンプライアンスを確認",
+      "- [ ] コードスメルをチェック",
+      "- [ ] パフォーマンス考慮事項を検証",
+      "- [ ] パターンが変更された場合はADRを更新",
+      "",
+      "必要に応じて @refactor-specialist を起動してください",
+      ""
+    ],
+    "description": "Phase 7: Code Review スターター"
+  },
+  
+  "Phase 8: Quality Checks": {
+    "prefix": "cp8",
+    "body": [
+      "## Phase 8: Quality Checks",
+      "",
+      "以下のコマンドをすべて実行してください:",
+      "",
+      "```bash",
+      "bun run type-check",
+      "bun run lint",
+      "bun run test",
+      "bun run build",
+      "```",
+      "",
+      "すべてのチェックがパス必須。エラーがあれば修正してください。",
+      ""
+    ],
+    "description": "Phase 8: Quality Checks スターター"
+  },
+  
+  "Phase 9A: Runtime Verification": {
+    "prefix": "cp9a",
+    "body": [
+      "## Phase 9A: Runtime Verification",
+      "",
+      "### 検証手順",
+      "1. 開発サーバーを起動: `bun run dev`",
+      "2. Next.js Runtime MCPでランタイムエラーがないことを確認",
+      "3. すべてのルートが認識されていることを確認",
+      "4. HTTPレスポンスが正しいことを確認（200 OK）",
+      "",
+      "検証対象: ${1:ルート/ページ}",
+      ""
+    ],
+    "description": "Phase 9A: Runtime Verification スターター"
+  },
+  
+  "Phase 9B: Browser Verification": {
+    "prefix": "cp9b",
+    "body": [
+      "## Phase 9B: Browser Verification",
+      "",
+      "### 検証項目",
+      "- [ ] ユーザーフローをテスト",
+      "- [ ] Core Web Vitals（LCP、FID、CLS）を測定",
+      "- [ ] アクセシビリティツリーを検証",
+      "- [ ] レスポンシブブレークポイントをテスト（375px - 1920px）",
+      "",
+      "Chrome DevTools MCPを使用してください",
+      ""
+    ],
+    "description": "Phase 9B: Browser Verification スターター"
+  },
+  
+  "Phase 10: Git Commit": {
+    "prefix": "cp10",
+    "body": [
+      "## Phase 10: Git Commit",
+      "",
+      "以下のフォーマットでコミットしてください:",
+      "",
+      "`${1|feat,fix,refactor,docs,test,style,chore|}: ${2:説明}`",
+      "",
+      "```bash",
+      "git add .",
+      "git commit -m \"${1:feat}: ${2:説明}\"",
+      "```",
+      ""
+    ],
+    "description": "Phase 10: Git Commit スターター"
+  },
+  
+  "Phase 11: Push": {
+    "prefix": "cp11",
+    "body": [
+      "## Phase 11: Push",
+      "",
+      "```bash",
+      "git push origin ${1:branch-name}",
+      "```",
+      "",
+      "プッシュ前に最終確認:",
+      "- [ ] すべてのテストがパス",
+      "- [ ] ビルドが成功",
+      "- [ ] コミットメッセージが適切",
+      ""
+    ],
+    "description": "Phase 11: Push スターター"
+  },
+  
+  "Copilot: UI/UXレビュー": {
+    "prefix": "cui",
+    "body": [
+      "以下のUIコンポーネントをレビューし、改善提案を行ってください。",
+      "",
+      "## レビュー観点",
+      "- アクセシビリティ（ARIA、セマンティックHTML、キーボードナビゲーション）",
+      "- ダークテーマ最適化（コントラスト、視認性）",
+      "- レスポンシブデザイン（ブレークポイント、タッチターゲット）",
+      "- 視覚的階層（スペーシング、タイポグラフィ）",
+      "",
+      "⚠️ 実装前に改善案の承認を求めてください。",
+      "",
+      "対象コンポーネント:",
+      "${1:// コンポーネントコード}"
+    ],
+    "description": "UI/UXレビューを依頼するプロンプト"
+  },
+  
+  "Copilot: コードレビュー": {
+    "prefix": "creview",
+    "body": [
+      "以下のコードをレビューしてください。",
+      "",
+      "## レビュー観点",
+      "- SOLID原則への準拠",
+      "- コードスメルの検出",
+      "- パフォーマンス考慮事項",
+      "- TypeScript型安全性",
+      "- エラーハンドリング",
+      "",
+      "対象コード:",
+      "${1:// コードをここに貼り付け}"
+    ],
+    "description": "コードレビューを依頼するプロンプト"
+  },
+  
+  "Copilot: リファクタリング提案": {
+    "prefix": "crefactor",
+    "body": [
+      "以下のコードのリファクタリング提案をしてください。",
+      "",
+      "## 考慮事項",
+      "- Presenterパターンの適用",
+      "- ロジックの分離",
+      "- 再利用性の向上",
+      "- 既存ADRとの整合性",
+      "",
+      "対象コード:",
+      "${1:// コードをここに貼り付け}"
+    ],
+    "description": "リファクタリング提案を依頼するプロンプト"
+  },
+  
+  "Copilot: Phase 1調査": {
+    "prefix": "cp1",
+    "body": [
+      "Phase 1: Investigation & Research を実行してください。",
+      "",
+      "## タスク",
+      "${1:実装したい機能の説明}",
+      "",
+      "## 調査項目",
+      "1. docs/adr/index.json の既存ADRを確認",
+      "2. Kiri MCPで関連コードを検索",
+      "3. 既存パターンと規約を特定",
+      "4. 実装アプローチの推奨"
+    ],
+    "description": "Phase 1調査を開始するプロンプト"
+  },
+  
+  "Copilot: セマンティック検索": {
+    "prefix": "csearch",
+    "body": [
+      "@workspace ${1:検索キーワード} に関連するコードを見つけてください。",
+      "",
+      "特に以下を確認:",
+      "- 既存の実装パターン",
+      "- 関連するコンポーネント",
+      "- 依存関係"
+    ],
+    "description": "セマンティックコード検索"
+  },
+  
+  "Copilot: エラー解決": {
+    "prefix": "cerr",
+    "body": [
+      "以下のエラーを解決してください。",
+      "",
+      "エラー:",
+      "${1:エラーメッセージ}",
+      "",
+      "コンテキスト:",
+      "${2:エラーが発生したコード}",
+      "",
+      "## 確認事項",
+      "- 型安全性",
+      "- インポートパス",
+      "- 既存パターンとの整合性"
+    ],
+    "description": "エラー解決を依頼するプロンプト"
+  }
+}
