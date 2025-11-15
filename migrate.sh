@@ -181,6 +181,12 @@ VSCODE_FILES=(
     "settings.json"
 )
 
+# scripts/ のファイル
+SCRIPTS=(
+    "start-chrome-devtools.sh"
+    "stop-chrome-devtools.sh"
+)
+
 # プレースホルダー置換関数
 replace_placeholders() {
     local file="$1"
@@ -580,6 +586,32 @@ for file in "${VSCODE_FILES[@]}"; do
     fi
 done
 
+# scripts/ のファイルをダウンロード
+echo ""
+echo -e "${YELLOW}scripts/ のファイル:${NC}"
+mkdir -p "$TARGET_DIR/scripts"
+for file in "${SCRIPTS[@]}"; do
+    temp_file="$TEMP_DIR/script-$file"
+    if download_file "scripts/$file" "$temp_file"; then
+        target_file="$TARGET_DIR/scripts/$file"
+
+        if [ -f "$target_file" ]; then
+            if [ "$FORCE_OVERWRITE" = true ]; then
+                echo -e "    ${YELLOW}既存ファイルを上書き: scripts/$file${NC}"
+            else
+                if ! should_overwrite "scripts/$file"; then
+                    echo "    スキップ: scripts/$file"
+                    continue
+                fi
+            fi
+        fi
+
+        cp "$temp_file" "$target_file"
+        chmod +x "$target_file"  # 実行権限を付与
+        echo -e "    ${GREEN}コピー完了: scripts/$file${NC}"
+    fi
+done
+
 echo ""
 echo -e "${GREEN}移行が完了しました！${NC}"
 echo ""
@@ -604,10 +636,12 @@ echo "  - VSCODE_COPILOT_SETUP.md (VS Code Copilotセットアップガイド)"
 echo "  - .github/copilot-instructions.md (VS Code Copilotメイン設定)"
 echo "  - .github/agents/*.md (VS Code Copilotエージェント 7個)"
 echo "  - .github/instructions/*.md (VS Code Copilot指示ファイル 3個)"
-echo "  - .github/prompts/*.md (VS Code Copilotプロンプト 3個)"
+echo "  - .github/prompts/*.md (VS Code Copilotプロンプト 4個)"
 echo "  - .vscode/markdown.code-snippets (Markdownスニペット)"
 echo "  - .vscode/mcp.json (VS Code MCP設定)"
 echo "  - .vscode/settings.json (VS Code設定)"
+echo "  - scripts/start-chrome-devtools.sh (Chrome DevTools起動スクリプト)"
+echo "  - scripts/stop-chrome-devtools.sh (Chrome DevTools停止スクリプト)"
 echo ""
 echo "次のステップ:"
 echo "  1. ターゲットプロジェクトで設定を確認してください"
@@ -616,3 +650,6 @@ echo "  3. .claude/settings.local.json は個人設定なので、各自で設�
 echo "  4. Gemini CLIを使用する場合は、拡張機能をインストールしてください:"
 echo "     cd <ターゲットプロジェクト> && gemini extensions install --path=."
 echo "  5. VS Code Copilotを使用する場合は、VS Codeで該当プロジェクトを開いてください"
+echo "  6. Chrome DevToolsスクリプトを使用する場合:"
+echo "     起動: bash scripts/start-chrome-devtools.sh"
+echo "     停止: bash scripts/stop-chrome-devtools.sh"

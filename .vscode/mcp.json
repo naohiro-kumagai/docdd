@@ -1,5 +1,5 @@
 {
-  "mcpServers": {
+  "servers": {
     "context7": {
       "command": "npx",
       "args": ["-y", "@upstash/context7-mcp@latest"]
@@ -14,7 +14,7 @@
         "--context",
         "ide-assistant",
         "--project",
-        ".",
+        "{{PROJECT_PATH}}",
         "--enable-gui-log-window",
         "false",
         "--enable-web-dashboard",
@@ -26,7 +26,7 @@
       "args": [
         "kiri-mcp-server@latest",
         "--repo",
-        ".",
+        "{{PROJECT_PATH}}",
         "--db",
         ".kiri/index.duckdb",
         "--watch"
@@ -34,7 +34,26 @@
     },
     "chrome-devtools": {
       "command": "npx",
-      "args": ["chrome-devtools-mcp@latest"]
+      "args": [
+        "-y",
+        "chrome-devtools-mcp@latest",
+        "--browserUrl",
+        "http://127.0.0.1:9222"
+      ]
+    },
+    "playwright": {
+      "command": "docker",
+      "args": [
+        "run",
+        "--rm",
+        "-i",
+        "--network=host",
+        "--ipc=host",
+        "--cap-add=SYS_ADMIN",
+        "-e", "DISPLAY=:99",
+        "mcr.microsoft.com/playwright:v1.56.1-jammy",
+        "sh", "-c", "Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 & npx -y playwright-mcp@latest"
+      ]
     },
     "next-devtools": {
       "command": "npx",
