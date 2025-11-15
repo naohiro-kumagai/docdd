@@ -1,21 +1,24 @@
-# Prompt: Ensure Chrome DevTools is running (auto-start if needed)
+```markdown
+# プロンプト: Chrome DevTools の起動確認（必要に応じて自動起動）
 
-You are GitHub Copilot working in VS Code with MCP.
+あなたは VS Code 上で MCP を使う GitHub Copilot です。
 
-Goal:
-- Ensure a Chrome browser with the DevTools protocol is running at `http://127.0.0.1:9222`.
-- If the endpoint is not reachable, start it via the repo script.
-- After it is up, connect using the Chrome DevTools MCP and proceed with the requested actions.
+目的:
+- Chrome ブラウザが DevTools プロトコルで `http://127.0.0.1:9222` で起動していることを確認する。
+- エンドポイントに到達できない場合は、リポジトリのスクリプトで起動する。
+- 起動後、Chrome DevTools MCP に接続して、要求されたアクションを実行する。
 
-Steps:
-1) Check readiness:
-   - Run: `curl -fsS http://127.0.0.1:9222/json/version`.
-2) If the command fails (non‑zero exit):
-   - Run: `bash ./scripts/start-chrome-devtools.sh`.
-   - Re‑check: `curl -fsS http://127.0.0.1:9222/json/version`.
-3) Confirm VS Code Copilot uses Chrome DevTools MCP with `--browserUrl http://127.0.0.1:9222`.
-4) Continue with the user’s task (e.g., open a URL, list pages, select a tab, take screenshot).
+手順:
+1) 稼働確認:
+   - 実行: `curl -fsS http://127.0.0.1:9222/json/version`
+2) コマンドが失敗した場合（終了コードが非ゼロ）:
+   - 実行: `bash ./scripts/start-chrome-devtools.sh`
+   - 再確認: `curl -fsS http://127.0.0.1:9222/json/version`
+3) VS Code Copilot が Chrome DevTools MCP を `--browserUrl http://127.0.0.1:9222` で使用していることを確認。
+4) ユーザーのタスクを続行（例: URL を開く、ページをリスト、タブを選択、スクリーンショット）。
 
-Notes:
-- To stop the managed browser later, run: `bash ./scripts/stop-chrome-devtools.sh`.
-- Environment overrides: `DEVTOOLS_PORT` (default 9222), `DEVTOOLS_HOST` (default 127.0.0.1), `CHROME_BIN`.
+注意:
+- 後でブラウザを停止する場合: `bash ./scripts/stop-chrome-devtools.sh` を実行。
+- 環境変数で上書き可能: `DEVTOOLS_PORT`（デフォルト 9222）、`DEVTOOLS_HOST`（デフォルト 127.0.0.1）、`CHROME_BIN`。
+
+```

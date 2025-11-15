@@ -180,6 +180,7 @@ GITHUB_INSTRUCTIONS=(
 # .github/prompts/ のファイル (VS Code Copilot)
 GITHUB_PROMPTS=(
     "adr-record.md"
+    "browser-tools-chooser.md"
     "test-gen.md"
     "ui-review.md"
 )
@@ -646,7 +647,7 @@ echo "  - VSCODE_COPILOT_SETUP.md (VS Code Copilotセットアップガイド)"
 echo "  - .github/copilot-instructions.md (VS Code Copilotメイン設定)"
 echo "  - .github/agents/*.md (VS Code Copilotエージェント 7個)"
 echo "  - .github/instructions/*.md (VS Code Copilot指示ファイル 13個)"
-echo "  - .github/prompts/*.md (VS Code Copilotプロンプト 4個)"
+echo "  - .github/prompts/*.md (VS Code Copilotプロンプト 5個)"
 echo "  - .vscode/markdown.code-snippets (Markdownスニペット)"
 echo "  - .vscode/mcp.json (VS Code MCP設定)"
 echo "  - .vscode/settings.json (VS Code設定)"
