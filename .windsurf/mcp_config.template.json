@@ -1,0 +1,108 @@
+{
+  "$schema": "https://modelcontextprotocol.io/schema/mcp_config.schema.json",
+  "mcpServers": {
+    "_comment_context7": "Context7: ライブラリドキュメント取得",
+    "context7": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@context7/mcp-server"
+      ]
+    },
+
+    "_comment_kiri": "Kiri: セマンティックコード検索・依存関係分析",
+    "kiri": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@kiri/mcp-server",
+        "{{PROJECT_PATH}}"
+      ]
+    },
+
+    "_comment_serena": "Serena: シンボリック編集と記憶管理",
+    "serena": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@serena/mcp-server",
+        "{{PROJECT_PATH}}"
+      ]
+    },
+
+    "_comment_github": "GitHub: Issue・PR・リポジトリ管理",
+    "github": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "<YOUR_GITHUB_TOKEN>"
+      }
+    },
+
+    "_comment_filesystem": "Filesystem: ローカルファイルシステムアクセス",
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "{{PROJECT_PATH}}"
+      ]
+    },
+
+    "_comment_playwright": "Playwright: ブラウザ自動化・E2Eテスト",
+    "playwright": {
+      "serverUrl": "http://localhost:3000/sse",
+      "_note": "Docker環境で playwright-mcp サーバーを起動済みの前提"
+    },
+
+    "_comment_chrome_devtools": "Chrome DevTools: WSL/Linuxでのブラウザデバッグ",
+    "chrome-devtools": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-chrome-devtools",
+        "--browserUrl",
+        "http://127.0.0.1:9222"
+      ],
+      "_note": "事前に scripts/start-chrome-devtools.sh を実行してChromeを起動"
+    },
+
+    "_comment_nextjs": "Next.js Runtime: ビルド・ランタイムエラー監視",
+    "nextjs-runtime": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-nextjs-runtime"
+      ]
+    }
+  },
+
+  "_setup_instructions": {
+    "description": "Windsurf MCP設定セットアップ手順",
+    "steps": [
+      "1. このファイルを ~/.codeium/windsurf/mcp_config.json にコピー",
+      "2. {{PROJECT_PATH}} を実際のプロジェクトパスに置換",
+      "3. GITHUB_PERSONAL_ACCESS_TOKEN にGitHub トークンを設定",
+      "4. Playwright・Chrome DevTools等は必要に応じて有効化",
+      "5. Windsurfを再起動してMCPサーバーを読み込み"
+    ],
+    "notes": [
+      "- プロジェクト固有のMCP設定は現在グローバル設定のみサポート",
+      "- Windsurf GUI（Cascadeパネル）から各サーバーを個別に有効化/無効化可能",
+      "- Chrome DevToolsは scripts/start-chrome-devtools.sh で事前起動が必要"
+    ]
+  },
+
+  "_integration_with_vscode": {
+    "description": "VS Codeの.vscode/mcp.jsonとの統合",
+    "notes": [
+      "- .vscode/mcp.json は VS Code Copilot用の設定",
+      "- このファイルはWindsurf専用のグローバル設定",
+      "- 両方を併用する場合、サーバー定義の一貫性を保つこと",
+      "- 環境変数やパスは各IDE用に調整が必要"
+    ]
+  }
+}

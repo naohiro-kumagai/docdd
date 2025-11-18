@@ -1,6 +1,6 @@
 # DocDD
 
-Cursor/Claude開発環境の設定ファイルとワークフロー定義を提供するプロジェクトです。
+Windsurf/Cursor/Claude開発環境の設定ファイルとワークフロー定義を提供するプロジェクトです。
 
 ## クイックスタート
 
@@ -53,6 +53,10 @@ bash <(curl -fsSL https://raw.githubusercontent.com/naohiro-kumagai/docdd/main/m
   - `test-guideline-enforcer.md`
   - `ui-design-advisor.md`
 - `.claude/settings.json` - Claude設定
+- `.windsurfrules` - Windsurf設定ルール
+- `.windsurf/mcp_config.json` - Windsurf MCP設定
+- `.windsurf/agents/*.md` - Windsurfエージェント定義（7種類）
+- `WINDSURF.md` - Windsurf開発ワークフロー定義
 
 ### .cursor/ ディレクトリ
 - `.cursor/commands/*.md` - Cursorコマンド定義（7種類）
@@ -68,7 +72,7 @@ bash <(curl -fsSL https://raw.githubusercontent.com/naohiro-kumagai/docdd/main/m
 
 ## 開発ワークフローについて
 
-このプロジェクトには、Cursor/Claudeを使用した開発ワークフローが定義されています。`CLAUDE.md`に詳細な手順が記載されています。
+このプロジェクトには、Windsurf/Cursor/Claudeを使用した開発ワークフローが定義されています。`CLAUDE.md`に詳細な手順が記載されています。
 
 ### ワークフロー概要
 

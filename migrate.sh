@@ -96,9 +96,13 @@ download_file() {
 # ルートレベルのファイル
 ROOT_FILES=(
     "CLAUDE.md"
+    "WINDSURF.md"
+    "WINDSURF_SETUP.md"
     "MCP_REFERENCE.md"
     ".cursorrules"
+    ".windsurfrules"
     ".mcp.json"
+    ".codeiumignore"
     "GEMINI.md"
     "GEMINI_README.md"
     "GEMINI_CLI_SUMMARY.md"
@@ -181,6 +185,7 @@ GITHUB_INSTRUCTIONS=(
 GITHUB_PROMPTS=(
     "adr-record.md"
     "browser-tools-chooser.md"
+    "devtools.ensure-chrome.md"
     "test-gen.md"
     "ui-review.md"
 )
@@ -190,6 +195,26 @@ VSCODE_FILES=(
     "markdown.code-snippets"
     "mcp.json"
     "settings.json"
+)
+
+# .windsurf/rules/ のファイル
+WINDSURF_RULES=(
+    "tech-stack.md"
+    "coding-standards.md"
+    "architecture.md"
+    "testing.md"
+)
+
+# .windsurf/workflows/ のファイル
+WINDSURF_WORKFLOWS=(
+    "full-workflow.md"
+    "quick-impl.md"
+    "fix-bug.md"
+)
+
+# .windsurf/ のその他ファイル
+WINDSURF_FILES=(
+    "mcp_config.template.json"
 )
 
 # scripts/ のファイル
@@ -338,6 +363,53 @@ for file in "${CURSOR_COMMANDS[@]}"; do
     fi
 done
 
+# .windsurfrules をダウンロード
+echo -e "${YELLOW}.windsurfrules:${NC}"
+temp_file="$TEMP_DIR/.windsurfrules"
+if download_file ".windsurfrules" "$temp_file"; then
+    target_file="$TARGET_DIR/.windsurfrules"
+    if [ -f "$target_file" ]; then
+        echo -e "    ${YELLOW}既存ファイルを上書き: .windsurfrules${NC}"
+        if should_overwrite ".windsurfrules"; then
+            cp "$temp_file" "$target_file"
+            echo -e "    ${GREEN}コピー完了: .windsurfrules${NC}"
+        else
+            echo "    スキップ: .windsurfrules"
+        fi
+    else
+        cp "$temp_file" "$target_file"
+        echo -e "    ${GREEN}コピー完了: .windsurfrules${NC}"
+    fi
+else
+    echo -e "    ${RED}エラー: .windsurfrules のダウンロードに失敗しました${NC}"
+    exit 1
+fi
+
+echo ""
+# .windsurf/mcp_config.json をダウンロード
+echo -e "${YELLOW}.windsurf/mcp_config.json:${NC}"
+temp_file="$TEMP_DIR/mcp_config.json"
+if download_file ".windsurf/mcp_config.json" "$temp_file"; then
+    mkdir -p "$TARGET_DIR/.windsurf"
+    target_file="$TARGET_DIR/.windsurf/mcp_config.json"
+    if [ -f "$target_file" ]; then
+        echo -e "    ${YELLOW}既存ファイルを上書き: .windsurf/mcp_config.json${NC}"
+        if should_overwrite ".windsurf/mcp_config.json"; then
+            cp "$temp_file" "$target_file"
+            echo -e "    ${GREEN}コピー完了: .windsurf/mcp_config.json${NC}"
+        else
+            echo "    スキップ: .windsurf/mcp_config.json"
+        fi
+    else
+        cp "$temp_file" "$target_file"
+        echo -e "    ${GREEN}コピー完了: .windsurf/mcp_config.json${NC}"
+    fi
+else
+    echo -e "    ${RED}エラー: .windsurf/mcp_config.json のダウンロードに失敗しました${NC}"
+    exit 1
+fi
+
+echo ""
 # .cursor/mcp.json をダウンロード
 echo ""
 echo -e "${YELLOW}.cursor/mcp.json:${NC}"
@@ -623,13 +695,95 @@ for file in "${SCRIPTS[@]}"; do
     fi
 done
 
+# .windsurf/rules/ のファイルをダウンロード
+echo ""
+echo -e "${YELLOW}.windsurf/rules/ のファイル:${NC}"
+mkdir -p "$TARGET_DIR/.windsurf/rules"
+for file in "${WINDSURF_RULES[@]}"; do
+    temp_file="$TEMP_DIR/windsurf-rule-$file"
+    if download_file ".windsurf/rules/$file" "$temp_file"; then
+        target_file="$TARGET_DIR/.windsurf/rules/$file"
+
+        if [ -f "$target_file" ]; then
+            if [ "$FORCE_OVERWRITE" = true ]; then
+                echo -e "    ${YELLOW}既存ファイルを上書き: .windsurf/rules/$file${NC}"
+            else
+                if ! should_overwrite ".windsurf/rules/$file"; then
+                    echo "    スキップ: .windsurf/rules/$file"
+                    continue
+                fi
+            fi
+        fi
+
+        cp "$temp_file" "$target_file"
+        echo -e "    ${GREEN}コピー完了: .windsurf/rules/$file${NC}"
+    fi
+done
+
+# .windsurf/workflows/ のファイルをダウンロード
+echo ""
+echo -e "${YELLOW}.windsurf/workflows/ のファイル:${NC}"
+mkdir -p "$TARGET_DIR/.windsurf/workflows"
+for file in "${WINDSURF_WORKFLOWS[@]}"; do
+    temp_file="$TEMP_DIR/windsurf-workflow-$file"
+    if download_file ".windsurf/workflows/$file" "$temp_file"; then
+        target_file="$TARGET_DIR/.windsurf/workflows/$file"
+
+        if [ -f "$target_file" ]; then
+            if [ "$FORCE_OVERWRITE" = true ]; then
+                echo -e "    ${YELLOW}既存ファイルを上書き: .windsurf/workflows/$file${NC}"
+            else
+                if ! should_overwrite ".windsurf/workflows/$file"; then
+                    echo "    スキップ: .windsurf/workflows/$file"
+                    continue
+                fi
+            fi
+        fi
+
+        cp "$temp_file" "$target_file"
+        echo -e "    ${GREEN}コピー完了: .windsurf/workflows/$file${NC}"
+    fi
+done
+
+# .windsurf/ のその他ファイルをダウンロード
+echo ""
+echo -e "${YELLOW}.windsurf/ のその他ファイル:${NC}"
+for file in "${WINDSURF_FILES[@]}"; do
+    temp_file="$TEMP_DIR/windsurf-$file"
+    if download_file ".windsurf/$file" "$temp_file"; then
+        target_file="$TARGET_DIR/.windsurf/$file"
+
+        if [ -f "$target_file" ]; then
+            if [ "$FORCE_OVERWRITE" = true ]; then
+                echo -e "    ${YELLOW}既存ファイルを上書き: .windsurf/$file${NC}"
+            else
+                if ! should_overwrite ".windsurf/$file"; then
+                    echo "    スキップ: .windsurf/$file"
+                    continue
+                fi
+            fi
+        fi
+
+        cp "$temp_file" "$target_file"
+        # プレースホルダーを置換（mcp_config.template.jsonの場合）
+        if [ "$file" = "mcp_config.template.json" ]; then
+            replace_placeholders "$target_file"
+        fi
+        echo -e "    ${GREEN}コピー完了: .windsurf/$file${NC}"
+    fi
+done
+
 echo ""
 echo -e "${GREEN}移行が完了しました！${NC}"
 echo ""
 echo "移行されたファイル:"
 echo "  - CLAUDE.md (開発ワークフロー定義)"
+echo "  - WINDSURF.md (Windsurf開発ワークフロー定義)"
+echo "  - WINDSURF_SETUP.md (Windsurf設定ガイド完全版)"
 echo "  - MCP_REFERENCE.md (MCPコマンドリファレンス)"
 echo "  - .cursorrules (Cursor設定)"
+echo "  - .windsurfrules (Windsurf設定)"
+echo "  - .codeiumignore (Windsurf AI除外設定)"
 echo "  - .mcp.json (MCP設定)"
 echo "  - .claude/agents/*.md (Claudeエージェント定義)"
 echo "  - .claude/settings.json (Claude設定)"
@@ -653,6 +807,9 @@ echo "  - .vscode/mcp.json (VS Code MCP設定)"
 echo "  - .vscode/settings.json (VS Code設定)"
 echo "  - scripts/start-chrome-devtools.sh (Chrome DevTools起動スクリプト)"
 echo "  - scripts/stop-chrome-devtools.sh (Chrome DevTools停止スクリプト)"
+echo "  - .windsurf/rules/*.md (Windsurfルールファイル 4個)"
+echo "  - .windsurf/workflows/*.md (Windsurfワークフロー 3個)"
+echo "  - .windsurf/mcp_config.template.json (Windsurf MCP設定テンプレート)"
 echo ""
 echo "次のステップ:"
 echo "  1. ターゲットプロジェクトで設定を確認してください"
@@ -664,3 +821,8 @@ echo "  5. VS Code Copilotを使用する場合は、VS Codeで該当プロジ�
 echo "  6. Chrome DevToolsスクリプトを使用する場合:"
 echo "     起動: bash scripts/start-chrome-devtools.sh"
 echo "     停止: bash scripts/stop-chrome-devtools.sh"
+echo "  7. Windsurf IDEを使用する場合:"
+echo "     - WINDSURF_SETUP.md を参照してグローバル設定をセットアップ"
+echo "     - ~/.codeium/windsurf/mcp_config.json を作成（テンプレート: .windsurf/mcp_config.template.json）"
+echo "     - Windsurfを再起動してMCP設定を読み込み"
+echo "     - Cascadeチャットで /full-workflow と入力して動作確認"
