@@ -362,28 +362,6 @@ for file in "${CURSOR_COMMANDS[@]}"; do
     fi
 done
 
-# .windsurfrules をダウンロード
-echo -e "${YELLOW}.windsurfrules:${NC}"
-temp_file="$TEMP_DIR/.windsurfrules"
-if download_file ".windsurfrules" "$temp_file"; then
-    target_file="$TARGET_DIR/.windsurfrules"
-    if [ -f "$target_file" ]; then
-        echo -e "    ${YELLOW}既存ファイルを上書き: .windsurfrules${NC}"
-        if should_overwrite ".windsurfrules"; then
-            cp "$temp_file" "$target_file"
-            echo -e "    ${GREEN}コピー完了: .windsurfrules${NC}"
-        else
-            echo "    スキップ: .windsurfrules"
-        fi
-    else
-        cp "$temp_file" "$target_file"
-        echo -e "    ${GREEN}コピー完了: .windsurfrules${NC}"
-    fi
-else
-    echo -e "    ${RED}エラー: .windsurfrules のダウンロードに失敗しました${NC}"
-    exit 1
-fi
-
 echo ""
 # .windsurf/mcp_config.json をダウンロード
 echo -e "${YELLOW}.windsurf/mcp_config.json:${NC}"
