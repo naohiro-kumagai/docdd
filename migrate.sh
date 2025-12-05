@@ -117,7 +117,7 @@ select_editors() {
                     ;;
             esac
         done
-        
+
         # 共通設定がない場合は自動追加
         if [ ${#SELECTED_EDITORS[@]} -gt 0 ]; then
             if [[ ! " ${SELECTED_EDITORS[@]} " =~ " common " ]]; then
@@ -125,14 +125,14 @@ select_editors() {
             fi
         fi
     fi
-    
+
     if [ ${#SELECTED_EDITORS[@]} -eq 0 ]; then
         echo -e "${RED}エディターが選択されていません。もう一度選択してください${NC}"
         echo ""
         select_editors
         return
     fi
-    
+
     echo ""
 }
 
@@ -337,12 +337,12 @@ if is_editor_selected "claude"; then
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo -e "${BLUE}Claude 設定${NC}"
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-    
+
     for file in "${CLAUDE_ROOT_FILES[@]}"; do
         temp_file="$TEMP_DIR/$file"
         download_file "$file" "$temp_file" && cp "$temp_file" "$TARGET_DIR/$file"
     done
-    
+
     echo -e "${YELLOW}.claude/agents/:${NC}"
     mkdir -p "$TARGET_DIR/.claude/agents"
     for file in "${CLAUDE_AGENTS[@]}"; do
@@ -351,7 +351,7 @@ if is_editor_selected "claude"; then
             cp "$temp_file" "$TARGET_DIR/.claude/agents/$file"
         fi
     done
-    
+
     echo -e "${YELLOW}.claude/settings.json:${NC}"
     temp_file="$TEMP_DIR/.claude-settings.json"
     download_file ".claude/settings.json" "$temp_file" && {
@@ -366,12 +366,12 @@ if is_editor_selected "cursor"; then
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo -e "${BLUE}Cursor 設定${NC}"
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-    
+
     for file in "${CURSOR_ROOT_FILES[@]}"; do
         temp_file="$TEMP_DIR/$file"
         download_file "$file" "$temp_file" && cp "$temp_file" "$TARGET_DIR/$file"
     done
-    
+
     echo -e "${YELLOW}.cursor/commands/:${NC}"
     mkdir -p "$TARGET_DIR/.cursor/commands"
     for file in "${CURSOR_COMMANDS[@]}"; do
@@ -380,7 +380,7 @@ if is_editor_selected "cursor"; then
             cp "$temp_file" "$TARGET_DIR/.cursor/commands/$file"
         fi
     done
-    
+
     echo -e "${YELLOW}.cursor/ MCP設定:${NC}"
     for conf in "mcp.json" "settings.json"; do
         temp_file="$TEMP_DIR/.cursor-$conf"
@@ -398,12 +398,12 @@ if is_editor_selected "windsurf"; then
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo -e "${BLUE}Windsurf 設定${NC}"
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-    
+
     for file in "${WINDSURF_ROOT_FILES[@]}"; do
         temp_file="$TEMP_DIR/$file"
         download_file "$file" "$temp_file" && cp "$temp_file" "$TARGET_DIR/$file"
     done
-    
+
     echo -e "${YELLOW}.windsurf/rules/:${NC}"
     mkdir -p "$TARGET_DIR/.windsurf/rules"
     for file in "${WINDSURF_RULES[@]}"; do
@@ -412,7 +412,7 @@ if is_editor_selected "windsurf"; then
             cp "$temp_file" "$TARGET_DIR/.windsurf/rules/$file"
         fi
     done
-    
+
     echo -e "${YELLOW}.windsurf/workflows/:${NC}"
     mkdir -p "$TARGET_DIR/.windsurf/workflows"
     for file in "${WINDSURF_WORKFLOWS[@]}"; do
@@ -429,12 +429,12 @@ if is_editor_selected "gemini"; then
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo -e "${BLUE}Gemini CLI 設定${NC}"
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-    
+
     for file in "${GEMINI_ROOT_FILES[@]}"; do
         temp_file="$TEMP_DIR/$file"
         download_file "$file" "$temp_file" && cp "$temp_file" "$TARGET_DIR/$file"
     done
-    
+
     echo -e "${YELLOW}.gemini/commands/:${NC}"
     mkdir -p "$TARGET_DIR/.gemini/commands"
     for file in "${GEMINI_COMMANDS[@]}"; do
@@ -444,7 +444,7 @@ if is_editor_selected "gemini"; then
             cp "$temp_file" "$TARGET_DIR/.gemini/commands/$file"
         fi
     done
-    
+
     echo -e "${YELLOW}.gemini/settings.json:${NC}"
     temp_file="$TEMP_DIR/.gemini-settings.json"
     if download_file ".gemini/settings.json" "$temp_file"; then
@@ -460,12 +460,12 @@ if is_editor_selected "copilot"; then
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo -e "${BLUE}VS Code Copilot 設定${NC}"
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-    
+
     for file in "${COPILOT_ROOT_FILES[@]}"; do
         temp_file="$TEMP_DIR/$file"
         download_file "$file" "$temp_file" && cp "$temp_file" "$TARGET_DIR/$file"
     done
-    
+
     echo -e "${YELLOW}.github/agents/:${NC}"
     mkdir -p "$TARGET_DIR/.github/agents"
     for file in "${GITHUB_AGENTS[@]}"; do
@@ -474,7 +474,7 @@ if is_editor_selected "copilot"; then
             cp "$temp_file" "$TARGET_DIR/.github/agents/$file"
         fi
     done
-    
+
     echo -e "${YELLOW}.github/instructions/:${NC}"
     mkdir -p "$TARGET_DIR/.github/instructions"
     for file in "${GITHUB_INSTRUCTIONS[@]}"; do
@@ -483,7 +483,7 @@ if is_editor_selected "copilot"; then
             cp "$temp_file" "$TARGET_DIR/.github/instructions/$file"
         fi
     done
-    
+
     echo -e "${YELLOW}.github/prompts/:${NC}"
     mkdir -p "$TARGET_DIR/.github/prompts"
     for file in "${GITHUB_PROMPTS[@]}"; do
@@ -492,7 +492,7 @@ if is_editor_selected "copilot"; then
             cp "$temp_file" "$TARGET_DIR/.github/prompts/$file"
         fi
     done
-    
+
     echo -e "${YELLOW}.github/copilot-instructions.md:${NC}"
     temp_file="$TEMP_DIR/github-copilot-instructions.md"
     download_file ".github/copilot-instructions.md" "$temp_file" && {
