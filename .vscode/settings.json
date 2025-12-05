@@ -8,7 +8,7 @@
   },
   
   // Copilot Chat設定
-  "chat.commandCenter.enabled": true,
+  "chat.commandCenter.enabled": false,
   "chat.experimental.quickQuestion.enable": true,
   
   // エージェントモード設定（MCPツール使用時に必要）
