@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # DocDDプロジェクトの設定ファイルを別プロジェクトに移行するスクリプト
-# 使用方法: curl -fsSL https://raw.githubusercontent.com/naohiro-kumagai/docdd/main/migrate.sh | bash -s -- <ターゲットプロジェクトのパス>
-# または: bash <(curl -fsSL https://raw.githubusercontent.com/naohiro-kumagai/docdd/main/migrate.sh) <ターゲットプロジェクトのパス>
+# 対話モード対応版：AIエディター選択機能付き
+# 使用方法: curl -fsSL https://raw.githubusercontent.com/naohiro-kumagai/docdd/main/migrate.sh | bash -s -- --interactive <ターゲットプロジェクトのパス>
 
 set -e
 
@@ -17,17 +17,24 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
+CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
 # 引数チェック
 FORCE_OVERWRITE=false
+INTERACTIVE_MODE=false
 TARGET_DIR=""
+SELECTED_EDITORS=()
 
 # 引数を解析
 while [[ $# -gt 0 ]]; do
     case $1 in
         --yes|-y|--force|-f)
             FORCE_OVERWRITE=true
+            shift
+            ;;
+        --interactive|-i)
+            INTERACTIVE_MODE=true
             shift
             ;;
         *)
@@ -44,15 +51,14 @@ if [ -z "$TARGET_DIR" ]; then
     echo ""
     echo "使用方法:"
     echo "  curl -fsSL https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${BRANCH}/migrate.sh | bash -s -- <ターゲットプロジェクトのパス>"
-    echo "  または"
-    echo "  bash <(curl -fsSL https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${BRANCH}/migrate.sh) <ターゲットプロジェクトのパス>"
     echo ""
     echo "オプション:"
-    echo "  --yes, -y, --force, -f  既存ファイルを確認せずに上書き"
+    echo "  --interactive, -i        対話モード（AIエディター選択）"
+    echo "  --yes, -y, --force, -f   既存ファイルを確認せずに上書き"
     echo ""
     echo "例:"
     echo "  curl -fsSL https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${BRANCH}/migrate.sh | bash -s -- /path/to/target-project"
-    echo "  curl -fsSL https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${BRANCH}/migrate.sh | bash -s -- --yes /path/to/target-project"
+    echo "  curl -fsSL https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${BRANCH}/migrate.sh | bash -s -- --interactive /path/to/target-project"
     exit 1
 fi
 
@@ -65,16 +71,96 @@ fi
 # 絶対パスに変換
 TARGET_DIR="$(cd "$TARGET_DIR" && pwd)"
 
-echo -e "${BLUE}DocDD設定ファイルの移行を開始します${NC}"
-echo -e "${BLUE}リポジトリ: https://github.com/${REPO_OWNER}/${REPO_NAME}${NC}"
-echo -e "${BLUE}ターゲット: $TARGET_DIR${NC}"
+echo -e "${BLUE}╔════════════════════════════════════════════════════════════╗${NC}"
+echo -e "${BLUE}║         DocDD 設定ファイル移行ツール v2.0                 ║${NC}"
+echo -e "${BLUE}╚════════════════════════════════════════════════════════════╝${NC}"
 echo ""
+echo -e "${BLUE}リポジトリ: https://github.com/${REPO_OWNER}/${REPO_NAME}${NC}"
+echo -e "${BLUE}ブランチ: ${BRANCH}${NC}"
+echo -e "${CYAN}ターゲット: ${TARGET_DIR}${NC}"
+echo ""
+
+# AIエディター選択関数
+select_editors() {
+    echo -e "${YELLOW}┌─ AIエディター選択 ─────────────────────────────────────┐${NC}"
+    echo ""
+    echo -e "${CYAN}1${NC})${GREEN} Claude${NC}        - .claude/ + Claude設定"
+    echo -e "${CYAN}2${NC})${GREEN} Cursor${NC}        - .cursor/ + Cursor設定"
+    echo -e "${CYAN}3${NC})${GREEN} Windsurf${NC}      - .windsurf/ + Windsurf設定"
+    echo -e "${CYAN}4${NC})${GREEN} Gemini CLI${NC}    - .gemini/ + Gemini関連ファイル"
+    echo -e "${CYAN}5${NC})${GREEN} VS Code Copilot${NC} - .github/ + VS Code Copilot設定"
+    echo -e "${CYAN}6${NC})${GREEN} 共通設定のみ${NC}    - MCP、Architecture等"
+    echo -e "${CYAN}7${NC})${GREEN} すべてインストール（推奨）${NC}"
+    echo ""
+    echo -e "${YELLOW}└─────────────────────────────────────────────────────────┘${NC}"
+    echo ""
+    echo "複数選択可能です (例: 1 2 3 で Claude, Cursor, Windsurf を選択)"
+    echo "スペース区切りで入力、または 7 で全て選択してください:"
+    read -r -p "> " selections
+
+    # 入力内容に応じてエディターを設定
+    if [[ "$selections" == "7" ]]; then
+        SELECTED_EDITORS=("claude" "cursor" "windsurf" "gemini" "copilot" "common")
+        echo ""
+        echo -e "${GREEN}✓ すべてのエディター設定を選択しました${NC}"
+    else
+        for num in $selections; do
+            case $num in
+                1) SELECTED_EDITORS+=("claude"); echo -e "${GREEN}✓ Claude を選択${NC}" ;;
+                2) SELECTED_EDITORS+=("cursor"); echo -e "${GREEN}✓ Cursor を選択${NC}" ;;
+                3) SELECTED_EDITORS+=("windsurf"); echo -e "${GREEN}✓ Windsurf を選択${NC}" ;;
+                4) SELECTED_EDITORS+=("gemini"); echo -e "${GREEN}✓ Gemini CLI を選択${NC}" ;;
+                5) SELECTED_EDITORS+=("copilot"); echo -e "${GREEN}✓ VS Code Copilot を選択${NC}" ;;
+                6) SELECTED_EDITORS+=("common"); echo -e "${GREEN}✓ 共通設定 を選択${NC}" ;;
+                *)
+                    echo -e "${YELLOW}⚠ 無効な選択: $num${NC}"
+                    ;;
+            esac
+        done
+        
+        # 共通設定がない場合は自動追加
+        if [ ${#SELECTED_EDITORS[@]} -gt 0 ]; then
+            if [[ ! " ${SELECTED_EDITORS[@]} " =~ " common " ]]; then
+                SELECTED_EDITORS+=("common")
+            fi
+        fi
+    fi
+    
+    if [ ${#SELECTED_EDITORS[@]} -eq 0 ]; then
+        echo -e "${RED}エディターが選択されていません。もう一度選択してください${NC}"
+        echo ""
+        select_editors
+        return
+    fi
+    
+    echo ""
+}
+
+# エディターが選択されているかチェック
+is_editor_selected() {
+    local editor="$1"
+    for selected in "${SELECTED_EDITORS[@]}"; do
+        if [ "$selected" = "$editor" ]; then
+            return 0
+        fi
+    done
+    return 1
+}
+
+# 対話モード実行
+if [ "$INTERACTIVE_MODE" = true ]; then
+    select_editors
+else
+    # 非対話モード時はすべてをダウンロード
+    SELECTED_EDITORS=("claude" "cursor" "windsurf" "gemini" "copilot" "common")
+fi
 
 # 一時ディレクトリを作成
 TEMP_DIR=$(mktemp -d)
 trap "rm -rf $TEMP_DIR" EXIT
 
 echo -e "${YELLOW}ファイルをダウンロード中...${NC}"
+echo ""
 
 # ダウンロード関数
 download_file() {
@@ -93,25 +179,52 @@ download_file() {
     fi
 }
 
-# ルートレベルのファイル
-ROOT_FILES=(
+# プレースホルダー置換関数
+replace_placeholders() {
+    local file="$1"
+    if [ -f "$file" ]; then
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            sed -i '' "s|{{PROJECT_PATH}}|$TARGET_DIR|g" "$file"
+        else
+            sed -i "s|{{PROJECT_PATH}}|$TARGET_DIR|g" "$file"
+        fi
+    fi
+}
+
+# ファイルリスト定義
+COMMON_ROOT_FILES=(
+    "README.md"
+    "ARCHITECTURE.md"
+    "MCP_REFERENCE.md"
+    ".mcp.json"
+)
+
+CLAUDE_ROOT_FILES=(
     "CLAUDE.md"
+)
+
+CURSOR_ROOT_FILES=(
+    ".cursorrules"
+)
+
+WINDSURF_ROOT_FILES=(
     "WINDSURF.md"
     "WINDSURF_SETUP.md"
-    "MCP_REFERENCE.md"
-    ".cursorrules"
-    ".mcp.json"
     ".codeiumignore"
+)
+
+GEMINI_ROOT_FILES=(
     "GEMINI.md"
     "GEMINI_README.md"
     "GEMINI_CLI_SUMMARY.md"
     "MIGRATION_GUIDE.md"
     "gemini-extension.json"
-    "ARCHITECTURE.md"
+)
+
+COPILOT_ROOT_FILES=(
     "VSCODE_COPILOT_SETUP.md"
 )
 
-# .claude/agents/ のファイル
 CLAUDE_AGENTS=(
     "adr-memory-manager.md"
     "app-code-specialist.md"
@@ -122,7 +235,6 @@ CLAUDE_AGENTS=(
     "ui-design-advisor.md"
 )
 
-# .cursor/commands/ のファイル
 CURSOR_COMMANDS=(
     "adr-memory-manager.md"
     "app-code-specialist.md"
@@ -133,7 +245,23 @@ CURSOR_COMMANDS=(
     "ui-design-advisor.md"
 )
 
-# .gemini/commands/ のファイル
+WINDSURF_RULES=(
+    "tech-stack.md"
+    "coding-standards.md"
+    "architecture.md"
+    "testing.md"
+)
+
+WINDSURF_WORKFLOWS=(
+    "full-workflow.md"
+    "quick-impl.md"
+    "fix-bug.md"
+)
+
+WINDSURF_FILES=(
+    "mcp_config.template.json"
+)
+
 GEMINI_COMMANDS=(
     "adr/record.toml"
     "adr/search.toml"
@@ -152,7 +280,6 @@ GEMINI_COMMANDS=(
     "ui/review.toml"
 )
 
-# .github/agents/ のファイル (VS Code Copilot)
 GITHUB_AGENTS=(
     "adr-manager.md"
     "onboarding-specialist.md"
@@ -163,7 +290,6 @@ GITHUB_AGENTS=(
     "ui-advisor.md"
 )
 
-# .github/instructions/ のファイル (VS Code Copilot)
 GITHUB_INSTRUCTIONS=(
     "phase1-investigation.instructions.md"
     "phase2-architecture.instructions.md"
@@ -180,7 +306,6 @@ GITHUB_INSTRUCTIONS=(
     "typescript.instructions.md"
 )
 
-# .github/prompts/ のファイル (VS Code Copilot)
 GITHUB_PROMPTS=(
     "adr-record.md"
     "browser-tools-chooser.md"
@@ -189,615 +314,219 @@ GITHUB_PROMPTS=(
     "ui-review.md"
 )
 
-# .vscode/ のファイル
-VSCODE_FILES=(
-    "markdown.code-snippets"
-    "mcp.json"
-    "settings.json"
-)
+# 共通設定ファイルをダウンロード
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${BLUE}共通設定（すべてのエディター対応）${NC}"
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 
-# .windsurf/rules/ のファイル
-WINDSURF_RULES=(
-    "tech-stack.md"
-    "coding-standards.md"
-    "architecture.md"
-    "testing.md"
-)
-
-# .windsurf/workflows/ のファイル
-WINDSURF_WORKFLOWS=(
-    "full-workflow.md"
-    "quick-impl.md"
-    "fix-bug.md"
-)
-
-# .windsurf/ のその他ファイル
-WINDSURF_FILES=(
-    "mcp_config.template.json"
-)
-
-# scripts/ のファイル
-SCRIPTS=(
-    "start-chrome-devtools.sh"
-    "stop-chrome-devtools.sh"
-)
-
-# プレースホルダー置換関数
-replace_placeholders() {
-    local file="$1"
-    if [ -f "$file" ]; then
-        # macOSとLinuxの両方で動作するsedコマンド
-        if [[ "$OSTYPE" == "darwin"* ]]; then
-            sed -i '' "s|{{PROJECT_PATH}}|$TARGET_DIR|g" "$file"
-        else
-            sed -i "s|{{PROJECT_PATH}}|$TARGET_DIR|g" "$file"
-        fi
-    fi
-}
-
-# 既存ファイルの上書き確認関数
-should_overwrite() {
-    local file_path="$1"
-    if [ "$FORCE_OVERWRITE" = true ]; then
-        return 0  # 上書きする
-    fi
-
-    # 対話的に確認（/dev/ttyを使用して端末から直接入力を受け取る）
-    echo -e "    ${YELLOW}警告: $file_path は既に存在します。上書きしますか？ (y/N)${NC}" >&2
-    read -r response < /dev/tty
-    if [[ "$response" =~ ^[Yy]$ ]]; then
-        return 0  # 上書きする
-    else
-        return 1  # スキップする
-    fi
-}
-
-# ルートレベルのファイルをダウンロード
-echo -e "${YELLOW}ルートレベルのファイル:${NC}"
-for file in "${ROOT_FILES[@]}"; do
+for file in "${COMMON_ROOT_FILES[@]}"; do
     temp_file="$TEMP_DIR/$file"
     if download_file "$file" "$temp_file"; then
-        # 既存ファイルの確認
         target_file="$TARGET_DIR/$file"
-        if [ -f "$target_file" ]; then
-            if [ "$FORCE_OVERWRITE" = true ]; then
-                echo -e "    ${YELLOW}既存ファイルを上書き: $file${NC}"
-            else
-                if ! should_overwrite "$file"; then
-                    echo "    スキップ: $file"
-                    continue
-                fi
-            fi
-        fi
-
-        # ディレクトリが存在しない場合は作成
-        target_dir=$(dirname "$target_file")
-        mkdir -p "$target_dir"
-
+        mkdir -p "$(dirname "$target_file")"
         cp "$temp_file" "$target_file"
-        # プレースホルダーを置換（.mcp.jsonの場合）
         if [ "$file" = ".mcp.json" ]; then
             replace_placeholders "$target_file"
         fi
-        echo -e "    ${GREEN}コピー完了: $file${NC}"
     fi
 done
 
-# .claude/agents/ のファイルをダウンロード
-echo ""
-echo -e "${YELLOW}.claude/agents/ のファイル:${NC}"
-mkdir -p "$TARGET_DIR/.claude/agents"
-for file in "${CLAUDE_AGENTS[@]}"; do
-    temp_file="$TEMP_DIR/$file"
-    if download_file ".claude/agents/$file" "$temp_file"; then
-        target_file="$TARGET_DIR/.claude/agents/$file"
-
-        if [ -f "$target_file" ]; then
-            if [ "$FORCE_OVERWRITE" = true ]; then
-                echo -e "    ${YELLOW}既存ファイルを上書き: .claude/agents/$file${NC}"
-            else
-                if ! should_overwrite ".claude/agents/$file"; then
-                    echo "    スキップ: .claude/agents/$file"
-                    continue
-                fi
-            fi
+# Claude設定
+if is_editor_selected "claude"; then
+    echo ""
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${BLUE}Claude 設定${NC}"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    
+    for file in "${CLAUDE_ROOT_FILES[@]}"; do
+        temp_file="$TEMP_DIR/$file"
+        download_file "$file" "$temp_file" && cp "$temp_file" "$TARGET_DIR/$file"
+    done
+    
+    echo -e "${YELLOW}.claude/agents/:${NC}"
+    mkdir -p "$TARGET_DIR/.claude/agents"
+    for file in "${CLAUDE_AGENTS[@]}"; do
+        temp_file="$TEMP_DIR/claude-agent-$file"
+        if download_file ".claude/agents/$file" "$temp_file"; then
+            cp "$temp_file" "$TARGET_DIR/.claude/agents/$file"
         fi
+    done
+    
+    echo -e "${YELLOW}.claude/settings.json:${NC}"
+    temp_file="$TEMP_DIR/.claude-settings.json"
+    download_file ".claude/settings.json" "$temp_file" && {
+        mkdir -p "$TARGET_DIR/.claude"
+        cp "$temp_file" "$TARGET_DIR/.claude/settings.json"
+    }
+fi
 
-        cp "$temp_file" "$target_file"
-        echo -e "    ${GREEN}コピー完了: .claude/agents/$file${NC}"
-    fi
-done
-
-# .claude/settings.json をダウンロード
-echo ""
-echo -e "${YELLOW}.claude/settings.json:${NC}"
-temp_file="$TEMP_DIR/.claude-settings.json"
-if download_file ".claude/settings.json" "$temp_file"; then
-    target_file="$TARGET_DIR/.claude/settings.json"
-
-    if [ -f "$target_file" ]; then
-        if [ "$FORCE_OVERWRITE" = true ]; then
-            echo -e "    ${YELLOW}既存ファイルを上書き: .claude/settings.json${NC}"
-            mkdir -p "$(dirname "$target_file")"
-            cp "$temp_file" "$target_file"
-            echo -e "    ${GREEN}コピー完了: .claude/settings.json${NC}"
-        else
-            if should_overwrite ".claude/settings.json"; then
-                mkdir -p "$(dirname "$target_file")"
-                cp "$temp_file" "$target_file"
-                echo -e "    ${GREEN}コピー完了: .claude/settings.json${NC}"
-            else
-                echo "    スキップ: .claude/settings.json"
-            fi
+# Cursor設定
+if is_editor_selected "cursor"; then
+    echo ""
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${BLUE}Cursor 設定${NC}"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    
+    for file in "${CURSOR_ROOT_FILES[@]}"; do
+        temp_file="$TEMP_DIR/$file"
+        download_file "$file" "$temp_file" && cp "$temp_file" "$TARGET_DIR/$file"
+    done
+    
+    echo -e "${YELLOW}.cursor/commands/:${NC}"
+    mkdir -p "$TARGET_DIR/.cursor/commands"
+    for file in "${CURSOR_COMMANDS[@]}"; do
+        temp_file="$TEMP_DIR/cursor-cmd-$file"
+        if download_file ".cursor/commands/$file" "$temp_file"; then
+            cp "$temp_file" "$TARGET_DIR/.cursor/commands/$file"
         fi
-    else
-        mkdir -p "$(dirname "$target_file")"
-        cp "$temp_file" "$target_file"
-        echo -e "    ${GREEN}コピー完了: .claude/settings.json${NC}"
+    done
+    
+    echo -e "${YELLOW}.cursor/ MCP設定:${NC}"
+    for conf in "mcp.json" "settings.json"; do
+        temp_file="$TEMP_DIR/.cursor-$conf"
+        if download_file ".cursor/$conf" "$temp_file"; then
+            mkdir -p "$TARGET_DIR/.cursor"
+            cp "$temp_file" "$TARGET_DIR/.cursor/$conf"
+            [ "$conf" = "mcp.json" ] && replace_placeholders "$TARGET_DIR/.cursor/$conf"
+        fi
+    done
+fi
+
+# Windsurf設定
+if is_editor_selected "windsurf"; then
+    echo ""
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${BLUE}Windsurf 設定${NC}"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    
+    for file in "${WINDSURF_ROOT_FILES[@]}"; do
+        temp_file="$TEMP_DIR/$file"
+        download_file "$file" "$temp_file" && cp "$temp_file" "$TARGET_DIR/$file"
+    done
+    
+    echo -e "${YELLOW}.windsurf/rules/:${NC}"
+    mkdir -p "$TARGET_DIR/.windsurf/rules"
+    for file in "${WINDSURF_RULES[@]}"; do
+        temp_file="$TEMP_DIR/windsurf-rule-$file"
+        if download_file ".windsurf/rules/$file" "$temp_file"; then
+            cp "$temp_file" "$TARGET_DIR/.windsurf/rules/$file"
+        fi
+    done
+    
+    echo -e "${YELLOW}.windsurf/workflows/:${NC}"
+    mkdir -p "$TARGET_DIR/.windsurf/workflows"
+    for file in "${WINDSURF_WORKFLOWS[@]}"; do
+        temp_file="$TEMP_DIR/windsurf-workflow-$file"
+        if download_file ".windsurf/workflows/$file" "$temp_file"; then
+            cp "$temp_file" "$TARGET_DIR/.windsurf/workflows/$file"
+        fi
+    done
+fi
+
+# Gemini CLI設定
+if is_editor_selected "gemini"; then
+    echo ""
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${BLUE}Gemini CLI 設定${NC}"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    
+    for file in "${GEMINI_ROOT_FILES[@]}"; do
+        temp_file="$TEMP_DIR/$file"
+        download_file "$file" "$temp_file" && cp "$temp_file" "$TARGET_DIR/$file"
+    done
+    
+    echo -e "${YELLOW}.gemini/commands/:${NC}"
+    mkdir -p "$TARGET_DIR/.gemini/commands"
+    for file in "${GEMINI_COMMANDS[@]}"; do
+        temp_file="$TEMP_DIR/gemini-cmd-${file//\//-}"
+        if download_file ".gemini/commands/$file" "$temp_file"; then
+            mkdir -p "$(dirname "$TARGET_DIR/.gemini/commands/$file")"
+            cp "$temp_file" "$TARGET_DIR/.gemini/commands/$file"
+        fi
+    done
+    
+    echo -e "${YELLOW}.gemini/settings.json:${NC}"
+    temp_file="$TEMP_DIR/.gemini-settings.json"
+    if download_file ".gemini/settings.json" "$temp_file"; then
+        mkdir -p "$TARGET_DIR/.gemini"
+        cp "$temp_file" "$TARGET_DIR/.gemini/settings.json"
+        replace_placeholders "$TARGET_DIR/.gemini/settings.json"
     fi
 fi
 
-# .cursor/commands/ のファイルをダウンロード
-echo ""
-echo -e "${YELLOW}.cursor/commands/ のファイル:${NC}"
-mkdir -p "$TARGET_DIR/.cursor/commands"
-for file in "${CURSOR_COMMANDS[@]}"; do
-    temp_file="$TEMP_DIR/$file"
-    if download_file ".cursor/commands/$file" "$temp_file"; then
-        target_file="$TARGET_DIR/.cursor/commands/$file"
-
-        if [ -f "$target_file" ]; then
-            if [ "$FORCE_OVERWRITE" = true ]; then
-                echo -e "    ${YELLOW}既存ファイルを上書き: .cursor/commands/$file${NC}"
-            else
-                if ! should_overwrite ".cursor/commands/$file"; then
-                    echo "    スキップ: .cursor/commands/$file"
-                    continue
-                fi
-            fi
+# VS Code Copilot設定
+if is_editor_selected "copilot"; then
+    echo ""
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${BLUE}VS Code Copilot 設定${NC}"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    
+    for file in "${COPILOT_ROOT_FILES[@]}"; do
+        temp_file="$TEMP_DIR/$file"
+        download_file "$file" "$temp_file" && cp "$temp_file" "$TARGET_DIR/$file"
+    done
+    
+    echo -e "${YELLOW}.github/agents/:${NC}"
+    mkdir -p "$TARGET_DIR/.github/agents"
+    for file in "${GITHUB_AGENTS[@]}"; do
+        temp_file="$TEMP_DIR/github-agent-$file"
+        if download_file ".github/agents/$file" "$temp_file"; then
+            cp "$temp_file" "$TARGET_DIR/.github/agents/$file"
         fi
-
-        cp "$temp_file" "$target_file"
-        echo -e "    ${GREEN}コピー完了: .cursor/commands/$file${NC}"
-    fi
-done
-
-echo ""
-# .windsurf/mcp_config.json をダウンロード
-echo -e "${YELLOW}.windsurf/mcp_config.json:${NC}"
-temp_file="$TEMP_DIR/mcp_config.json"
-if download_file ".windsurf/mcp_config.json" "$temp_file"; then
-    mkdir -p "$TARGET_DIR/.windsurf"
-    target_file="$TARGET_DIR/.windsurf/mcp_config.json"
-    if [ -f "$target_file" ]; then
-        echo -e "    ${YELLOW}既存ファイルを上書き: .windsurf/mcp_config.json${NC}"
-        if should_overwrite ".windsurf/mcp_config.json"; then
-            cp "$temp_file" "$target_file"
-            echo -e "    ${GREEN}コピー完了: .windsurf/mcp_config.json${NC}"
-        else
-            echo "    スキップ: .windsurf/mcp_config.json"
+    done
+    
+    echo -e "${YELLOW}.github/instructions/:${NC}"
+    mkdir -p "$TARGET_DIR/.github/instructions"
+    for file in "${GITHUB_INSTRUCTIONS[@]}"; do
+        temp_file="$TEMP_DIR/github-instr-${file//\//-}"
+        if download_file ".github/instructions/$file" "$temp_file"; then
+            cp "$temp_file" "$TARGET_DIR/.github/instructions/$file"
         fi
-    else
-        cp "$temp_file" "$target_file"
-        echo -e "    ${GREEN}コピー完了: .windsurf/mcp_config.json${NC}"
-    fi
-else
-    echo -e "    ${RED}エラー: .windsurf/mcp_config.json のダウンロードに失敗しました${NC}"
-    exit 1
+    done
+    
+    echo -e "${YELLOW}.github/prompts/:${NC}"
+    mkdir -p "$TARGET_DIR/.github/prompts"
+    for file in "${GITHUB_PROMPTS[@]}"; do
+        temp_file="$TEMP_DIR/github-prompt-$file"
+        if download_file ".github/prompts/$file" "$temp_file"; then
+            cp "$temp_file" "$TARGET_DIR/.github/prompts/$file"
+        fi
+    done
+    
+    echo -e "${YELLOW}.github/copilot-instructions.md:${NC}"
+    temp_file="$TEMP_DIR/github-copilot-instructions.md"
+    download_file ".github/copilot-instructions.md" "$temp_file" && {
+        mkdir -p "$TARGET_DIR/.github"
+        cp "$temp_file" "$TARGET_DIR/.github/copilot-instructions.md"
+    }
 fi
 
+# 完了メッセージ
 echo ""
-# .cursor/mcp.json をダウンロード
+echo -e "${BLUE}╔════════════════════════════════════════════════════════════╗${NC}"
+echo -e "${GREEN}║           移行が完了しました！ ✓                        ║${NC}"
+echo -e "${BLUE}╚════════════════════════════════════════════════════════════╝${NC}"
 echo ""
-echo -e "${YELLOW}.cursor/mcp.json:${NC}"
-temp_file="$TEMP_DIR/.cursor-mcp.json"
-if download_file ".cursor/mcp.json" "$temp_file"; then
-    target_file="$TARGET_DIR/.cursor/mcp.json"
-
-    if [ -f "$target_file" ]; then
-        if [ "$FORCE_OVERWRITE" = true ]; then
-            echo -e "    ${YELLOW}既存ファイルを上書き: .cursor/mcp.json${NC}"
-            mkdir -p "$(dirname "$target_file")"
-            cp "$temp_file" "$target_file"
-            # プレースホルダーを置換
-            replace_placeholders "$target_file"
-            echo -e "    ${GREEN}コピー完了: .cursor/mcp.json${NC}"
-        else
-            if should_overwrite ".cursor/mcp.json"; then
-                mkdir -p "$(dirname "$target_file")"
-                cp "$temp_file" "$target_file"
-                # プレースホルダーを置換
-                replace_placeholders "$target_file"
-                echo -e "    ${GREEN}コピー完了: .cursor/mcp.json${NC}"
-            else
-                echo "    スキップ: .cursor/mcp.json"
-            fi
-        fi
-    else
-        mkdir -p "$(dirname "$target_file")"
-        cp "$temp_file" "$target_file"
-        # プレースホルダーを置換
-        replace_placeholders "$target_file"
-        echo -e "    ${GREEN}コピー完了: .cursor/mcp.json${NC}"
-    fi
+echo -e "${GREEN}インストール済みコンポーネント:${NC}"
+echo "  - 共通設定（MCP、Architecture等）"
+if is_editor_selected "claude"; then
+    echo "  - ${CYAN}Claude${NC} 設定（.claude/ + Agents）"
 fi
-
-# .cursor/settings.json をダウンロード
-echo ""
-echo -e "${YELLOW}.cursor/settings.json:${NC}"
-temp_file="$TEMP_DIR/.cursor-settings.json"
-if download_file ".cursor/settings.json" "$temp_file"; then
-    target_file="$TARGET_DIR/.cursor/settings.json"
-
-    if [ -f "$target_file" ]; then
-        if [ "$FORCE_OVERWRITE" = true ]; then
-            echo -e "    ${YELLOW}既存ファイルを上書き: .cursor/settings.json${NC}"
-            mkdir -p "$(dirname "$target_file")"
-            cp "$temp_file" "$target_file"
-            echo -e "    ${GREEN}コピー完了: .cursor/settings.json${NC}"
-        else
-            if should_overwrite ".cursor/settings.json"; then
-                mkdir -p "$(dirname "$target_file")"
-                cp "$temp_file" "$target_file"
-                echo -e "    ${GREEN}コピー完了: .cursor/settings.json${NC}"
-            else
-                echo "    スキップ: .cursor/settings.json"
-            fi
-        fi
-    else
-        mkdir -p "$(dirname "$target_file")"
-        cp "$temp_file" "$target_file"
-        echo -e "    ${GREEN}コピー完了: .cursor/settings.json${NC}"
-    fi
+if is_editor_selected "cursor"; then
+    echo "  - ${CYAN}Cursor${NC} 設定（.cursor/ + Commands）"
 fi
-
-# .gemini/commands/ のファイルをダウンロード
-echo ""
-echo -e "${YELLOW}.gemini/commands/ のファイル:${NC}"
-mkdir -p "$TARGET_DIR/.gemini/commands"
-for file in "${GEMINI_COMMANDS[@]}"; do
-    temp_file="$TEMP_DIR/gemini-cmd-${file//\//-}"
-    if download_file ".gemini/commands/$file" "$temp_file"; then
-        target_file="$TARGET_DIR/.gemini/commands/$file"
-
-        if [ -f "$target_file" ]; then
-            if [ "$FORCE_OVERWRITE" = true ]; then
-                echo -e "    ${YELLOW}既存ファイルを上書き: .gemini/commands/$file${NC}"
-            else
-                if ! should_overwrite ".gemini/commands/$file"; then
-                    echo "    スキップ: .gemini/commands/$file"
-                    continue
-                fi
-            fi
-        fi
-
-        # サブディレクトリも作成
-        mkdir -p "$(dirname "$target_file")"
-        cp "$temp_file" "$target_file"
-        echo -e "    ${GREEN}コピー完了: .gemini/commands/$file${NC}"
-    fi
-done
-
-# .gemini/settings.json をダウンロード
-echo ""
-echo -e "${YELLOW}.gemini/settings.json:${NC}"
-temp_file="$TEMP_DIR/.gemini-settings.json"
-if download_file ".gemini/settings.json" "$temp_file"; then
-    target_file="$TARGET_DIR/.gemini/settings.json"
-
-    if [ -f "$target_file" ]; then
-        if [ "$FORCE_OVERWRITE" = true ]; then
-            echo -e "    ${YELLOW}既存ファイルを上書き: .gemini/settings.json${NC}"
-            mkdir -p "$(dirname "$target_file")"
-            cp "$temp_file" "$target_file"
-            # プレースホルダーを置換
-            replace_placeholders "$target_file"
-            echo -e "    ${GREEN}コピー完了: .gemini/settings.json${NC}"
-        else
-            if should_overwrite ".gemini/settings.json"; then
-                mkdir -p "$(dirname "$target_file")"
-                cp "$temp_file" "$target_file"
-                # プレースホルダーを置換
-                replace_placeholders "$target_file"
-                echo -e "    ${GREEN}コピー完了: .gemini/settings.json${NC}"
-            else
-                echo "    スキップ: .gemini/settings.json"
-            fi
-        fi
-    else
-        mkdir -p "$(dirname "$target_file")"
-        cp "$temp_file" "$target_file"
-        # プレースホルダーを置換
-        replace_placeholders "$target_file"
-        echo -e "    ${GREEN}コピー完了: .gemini/settings.json${NC}"
-    fi
+if is_editor_selected "windsurf"; then
+    echo "  - ${CYAN}Windsurf${NC} 設定（.windsurf/rules/ + workflows/）"
 fi
-
-# .github/agents/ のファイルをダウンロード (VS Code Copilot)
-echo ""
-echo -e "${YELLOW}.github/agents/ のファイル (VS Code Copilot):${NC}"
-mkdir -p "$TARGET_DIR/.github/agents"
-for file in "${GITHUB_AGENTS[@]}"; do
-    temp_file="$TEMP_DIR/github-agent-$file"
-    if download_file ".github/agents/$file" "$temp_file"; then
-        target_file="$TARGET_DIR/.github/agents/$file"
-
-        if [ -f "$target_file" ]; then
-            if [ "$FORCE_OVERWRITE" = true ]; then
-                echo -e "    ${YELLOW}既存ファイルを上書き: .github/agents/$file${NC}"
-            else
-                if ! should_overwrite ".github/agents/$file"; then
-                    echo "    スキップ: .github/agents/$file"
-                    continue
-                fi
-            fi
-        fi
-
-        cp "$temp_file" "$target_file"
-        echo -e "    ${GREEN}コピー完了: .github/agents/$file${NC}"
-    fi
-done
-
-# .github/copilot-instructions.md をダウンロード
-echo ""
-echo -e "${YELLOW}.github/copilot-instructions.md:${NC}"
-temp_file="$TEMP_DIR/github-copilot-instructions.md"
-if download_file ".github/copilot-instructions.md" "$temp_file"; then
-    target_file="$TARGET_DIR/.github/copilot-instructions.md"
-
-    if [ -f "$target_file" ]; then
-        if [ "$FORCE_OVERWRITE" = true ]; then
-            echo -e "    ${YELLOW}既存ファイルを上書き: .github/copilot-instructions.md${NC}"
-            mkdir -p "$(dirname "$target_file")"
-            cp "$temp_file" "$target_file"
-            echo -e "    ${GREEN}コピー完了: .github/copilot-instructions.md${NC}"
-        else
-            if should_overwrite ".github/copilot-instructions.md"; then
-                mkdir -p "$(dirname "$target_file")"
-                cp "$temp_file" "$target_file"
-                echo -e "    ${GREEN}コピー完了: .github/copilot-instructions.md${NC}"
-            else
-                echo "    スキップ: .github/copilot-instructions.md"
-            fi
-        fi
-    else
-        mkdir -p "$(dirname "$target_file")"
-        cp "$temp_file" "$target_file"
-        echo -e "    ${GREEN}コピー完了: .github/copilot-instructions.md${NC}"
-    fi
+if is_editor_selected "gemini"; then
+    echo "  - ${CYAN}Gemini CLI${NC} 設定（.gemini/ + Commands）"
 fi
-
-# .github/instructions/ のファイルをダウンロード
+if is_editor_selected "copilot"; then
+    echo "  - ${CYAN}VS Code Copilot${NC} 設定（.github/ + Instructions）"
+fi
 echo ""
-echo -e "${YELLOW}.github/instructions/ のファイル:${NC}"
-mkdir -p "$TARGET_DIR/.github/instructions"
-for file in "${GITHUB_INSTRUCTIONS[@]}"; do
-    temp_file="$TEMP_DIR/github-instruction-$file"
-    if download_file ".github/instructions/$file" "$temp_file"; then
-        target_file="$TARGET_DIR/.github/instructions/$file"
-
-        if [ -f "$target_file" ]; then
-            if [ "$FORCE_OVERWRITE" = true ]; then
-                echo -e "    ${YELLOW}既存ファイルを上書き: .github/instructions/$file${NC}"
-            else
-                if ! should_overwrite ".github/instructions/$file"; then
-                    echo "    スキップ: .github/instructions/$file"
-                    continue
-                fi
-            fi
-        fi
-
-        cp "$temp_file" "$target_file"
-        echo -e "    ${GREEN}コピー完了: .github/instructions/$file${NC}"
-    fi
-done
-
-# .github/prompts/ のファイルをダウンロード
+echo -e "${YELLOW}次のステップ:${NC}"
+echo "  1. エディターを開く"
+echo "  2. 設定ファイルが正しく配置されたか確認"
+echo "  3. MCPサーバーの設定を確認"
 echo ""
-echo -e "${YELLOW}.github/prompts/ のファイル:${NC}"
-mkdir -p "$TARGET_DIR/.github/prompts"
-for file in "${GITHUB_PROMPTS[@]}"; do
-    temp_file="$TEMP_DIR/github-prompt-$file"
-    if download_file ".github/prompts/$file" "$temp_file"; then
-        target_file="$TARGET_DIR/.github/prompts/$file"
-
-        if [ -f "$target_file" ]; then
-            if [ "$FORCE_OVERWRITE" = true ]; then
-                echo -e "    ${YELLOW}既存ファイルを上書き: .github/prompts/$file${NC}"
-            else
-                if ! should_overwrite ".github/prompts/$file"; then
-                    echo "    スキップ: .github/prompts/$file"
-                    continue
-                fi
-            fi
-        fi
-
-        cp "$temp_file" "$target_file"
-        echo -e "    ${GREEN}コピー完了: .github/prompts/$file${NC}"
-    fi
-done
-
-# .vscode/ のファイルをダウンロード
-echo ""
-echo -e "${YELLOW}.vscode/ のファイル:${NC}"
-mkdir -p "$TARGET_DIR/.vscode"
-for file in "${VSCODE_FILES[@]}"; do
-    temp_file="$TEMP_DIR/vscode-$file"
-    if download_file ".vscode/$file" "$temp_file"; then
-        target_file="$TARGET_DIR/.vscode/$file"
-
-        if [ -f "$target_file" ]; then
-            if [ "$FORCE_OVERWRITE" = true ]; then
-                echo -e "    ${YELLOW}既存ファイルを上書き: .vscode/$file${NC}"
-            else
-                if ! should_overwrite ".vscode/$file"; then
-                    echo "    スキップ: .vscode/$file"
-                    continue
-                fi
-            fi
-        fi
-
-        cp "$temp_file" "$target_file"
-        # プレースホルダーを置換（mcp.jsonの場合）
-        if [ "$file" = "mcp.json" ]; then
-            replace_placeholders "$target_file"
-        fi
-        echo -e "    ${GREEN}コピー完了: .vscode/$file${NC}"
-    fi
-done
-
-# scripts/ のファイルをダウンロード
-echo ""
-echo -e "${YELLOW}scripts/ のファイル:${NC}"
-mkdir -p "$TARGET_DIR/scripts"
-for file in "${SCRIPTS[@]}"; do
-    temp_file="$TEMP_DIR/script-$file"
-    if download_file "scripts/$file" "$temp_file"; then
-        target_file="$TARGET_DIR/scripts/$file"
-
-        if [ -f "$target_file" ]; then
-            if [ "$FORCE_OVERWRITE" = true ]; then
-                echo -e "    ${YELLOW}既存ファイルを上書き: scripts/$file${NC}"
-            else
-                if ! should_overwrite "scripts/$file"; then
-                    echo "    スキップ: scripts/$file"
-                    continue
-                fi
-            fi
-        fi
-
-        cp "$temp_file" "$target_file"
-        chmod +x "$target_file"  # 実行権限を付与
-        echo -e "    ${GREEN}コピー完了: scripts/$file${NC}"
-    fi
-done
-
-# .windsurf/rules/ のファイルをダウンロード
-echo ""
-echo -e "${YELLOW}.windsurf/rules/ のファイル:${NC}"
-mkdir -p "$TARGET_DIR/.windsurf/rules"
-for file in "${WINDSURF_RULES[@]}"; do
-    temp_file="$TEMP_DIR/windsurf-rule-$file"
-    if download_file ".windsurf/rules/$file" "$temp_file"; then
-        target_file="$TARGET_DIR/.windsurf/rules/$file"
-
-        if [ -f "$target_file" ]; then
-            if [ "$FORCE_OVERWRITE" = true ]; then
-                echo -e "    ${YELLOW}既存ファイルを上書き: .windsurf/rules/$file${NC}"
-            else
-                if ! should_overwrite ".windsurf/rules/$file"; then
-                    echo "    スキップ: .windsurf/rules/$file"
-                    continue
-                fi
-            fi
-        fi
-
-        cp "$temp_file" "$target_file"
-        echo -e "    ${GREEN}コピー完了: .windsurf/rules/$file${NC}"
-    fi
-done
-
-# .windsurf/workflows/ のファイルをダウンロード
-echo ""
-echo -e "${YELLOW}.windsurf/workflows/ のファイル:${NC}"
-mkdir -p "$TARGET_DIR/.windsurf/workflows"
-for file in "${WINDSURF_WORKFLOWS[@]}"; do
-    temp_file="$TEMP_DIR/windsurf-workflow-$file"
-    if download_file ".windsurf/workflows/$file" "$temp_file"; then
-        target_file="$TARGET_DIR/.windsurf/workflows/$file"
-
-        if [ -f "$target_file" ]; then
-            if [ "$FORCE_OVERWRITE" = true ]; then
-                echo -e "    ${YELLOW}既存ファイルを上書き: .windsurf/workflows/$file${NC}"
-            else
-                if ! should_overwrite ".windsurf/workflows/$file"; then
-                    echo "    スキップ: .windsurf/workflows/$file"
-                    continue
-                fi
-            fi
-        fi
-
-        cp "$temp_file" "$target_file"
-        echo -e "    ${GREEN}コピー完了: .windsurf/workflows/$file${NC}"
-    fi
-done
-
-# .windsurf/ のその他ファイルをダウンロード
-echo ""
-echo -e "${YELLOW}.windsurf/ のその他ファイル:${NC}"
-for file in "${WINDSURF_FILES[@]}"; do
-    temp_file="$TEMP_DIR/windsurf-$file"
-    if download_file ".windsurf/$file" "$temp_file"; then
-        target_file="$TARGET_DIR/.windsurf/$file"
-
-        if [ -f "$target_file" ]; then
-            if [ "$FORCE_OVERWRITE" = true ]; then
-                echo -e "    ${YELLOW}既存ファイルを上書き: .windsurf/$file${NC}"
-            else
-                if ! should_overwrite ".windsurf/$file"; then
-                    echo "    スキップ: .windsurf/$file"
-                    continue
-                fi
-            fi
-        fi
-
-        cp "$temp_file" "$target_file"
-        # プレースホルダーを置換（mcp_config.template.jsonの場合）
-        if [ "$file" = "mcp_config.template.json" ]; then
-            replace_placeholders "$target_file"
-        fi
-        echo -e "    ${GREEN}コピー完了: .windsurf/$file${NC}"
-    fi
-done
-
-echo ""
-echo -e "${GREEN}移行が完了しました！${NC}"
-echo ""
-echo "移行されたファイル:"
-echo "  - CLAUDE.md (開発ワークフロー定義)"
-echo "  - WINDSURF.md (Windsurf開発ワークフロー定義)"
-echo "  - WINDSURF_SETUP.md (Windsurf設定ガイド完全版)"
-echo "  - MCP_REFERENCE.md (MCPコマンドリファレンス)"
-echo "  - .cursorrules (Cursor設定)"
-echo "  - .codeiumignore (Windsurf AI除外設定)"
-echo "  - .mcp.json (MCP設定)"
-echo "  - .claude/agents/*.md (Claudeエージェント定義)"
-echo "  - .claude/settings.json (Claude設定)"
-echo "  - .cursor/commands/*.md (Cursorコマンド定義)"
-echo "  - .cursor/mcp.json (Cursor MCP設定)"
-echo "  - .cursor/settings.json (Cursor設定)"
-echo "  - GEMINI.md (Gemini CLI戦略的コンテキスト)"
-echo "  - GEMINI_README.md (Gemini CLI使用ガイド)"
-echo "  - GEMINI_CLI_SUMMARY.md (Gemini CLI実装サマリー)"
-echo "  - MIGRATION_GUIDE.md (Gemini CLI移行ガイド)"
-echo "  - gemini-extension.json (Gemini CLI拡張マニフェスト)"
-echo "  - .gemini/settings.json (Gemini CLI設定)"
-echo "  - .gemini/commands/*.toml (Gemini CLIカスタムコマンド 15個)"
-echo "  - VSCODE_COPILOT_SETUP.md (VS Code Copilotセットアップガイド)"
-echo "  - .github/agents/*.md (VS Code Copilotエージェント 7個)"
-echo "  - .github/instructions/*.md (VS Code Copilot指示ファイル 13個)"
-echo "  - .github/prompts/*.md (VS Code Copilotプロンプト 5個)"
-echo "  - .vscode/markdown.code-snippets (Markdownスニペット)"
-echo "  - .vscode/mcp.json (VS Code MCP設定)"
-echo "  - .vscode/settings.json (VS Code設定)"
-echo "  - scripts/start-chrome-devtools.sh (Chrome DevTools起動スクリプト)"
-echo "  - scripts/stop-chrome-devtools.sh (Chrome DevTools停止スクリプト)"
-echo "  - .windsurf/rules/*.md (Windsurfルールファイル 4個)"
-echo "  - .windsurf/workflows/*.md (Windsurfワークフロー 3個)"
-echo "  - .windsurf/mcp_config.template.json (Windsurf MCP設定テンプレート)"
-echo ""
-echo "次のステップ:"
-echo "  1. ターゲットプロジェクトで設定を確認してください"
-echo "  2. 必要に応じて設定をカスタマイズしてください"
-echo "  3. .claude/settings.local.json は個人設定なので、各自で設定してください"
-echo "  4. Gemini CLIを使用する場合は、拡張機能をインストールしてください:"
-echo "     cd <ターゲットプロジェクト> && gemini extensions install --path=."
-echo "  5. VS Code Copilotを使用する場合は、VS Codeで該当プロジェクトを開いてください"
-echo "  6. Chrome DevToolsスクリプトを使用する場合:"
-echo "     起動: bash scripts/start-chrome-devtools.sh"
-echo "     停止: bash scripts/stop-chrome-devtools.sh"
-echo "  7. Windsurf IDEを使用する場合:"
-echo "     - WINDSURF_SETUP.md を参照してグローバル設定をセットアップ"
-echo "     - ~/.codeium/windsurf/mcp_config.json を作成（テンプレート: .windsurf/mcp_config.template.json）"
-echo "     - Windsurfを再起動してMCP設定を読み込み"
-echo "     - Cascadeチャットで /full-workflow と入力して動作確認"
