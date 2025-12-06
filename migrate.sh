@@ -96,7 +96,11 @@ select_editors() {
     echo ""
     echo "複数選択可能です (例: 1 2 3 で Claude, Cursor, Windsurf を選択)"
     echo "スペース区切りで入力、または 7 で全て選択してください:"
-    read -r -p "> " selections
+    # /dev/tty を使ってパイプ実行時にも安全に入力を受け取る
+    if ! read -r -p "> " selections < /dev/tty; then
+        echo -e "${YELLOW}入力を受け取れませんでした。デフォルトですべてを選択します${NC}"
+        selections="7"
+    fi
 
     # 入力内容に応じてエディターを設定
     if [[ "$selections" == "7" ]]; then
@@ -127,10 +131,8 @@ select_editors() {
     fi
 
     if [ ${#SELECTED_EDITORS[@]} -eq 0 ]; then
-        echo -e "${RED}エディターが選択されていません。もう一度選択してください${NC}"
-        echo ""
-        select_editors
-        return
+        echo -e "${YELLOW}入力が空でした。デフォルトで全てのエディターを選択します${NC}"
+        SELECTED_EDITORS=("claude" "cursor" "windsurf" "gemini" "copilot" "common")
     fi
 
     echo ""
