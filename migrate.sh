@@ -212,7 +212,6 @@ replace_placeholders() {
 
 # ファイルリスト定義
 COMMON_ROOT_FILES=(
-    "README.md"
     "ARCHITECTURE.md"
     "MCP_REFERENCE.md"
     ".mcp.json"
