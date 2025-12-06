@@ -82,6 +82,14 @@ echo ""
 
 # AIエディター選択関数
 select_editors() {
+    # パイプ実行で標準入力がスクリプトに消費されるのを防ぐ
+    # /dev/tty が読めない環境では自動で「すべて選択」にフォールバック
+    if [ ! -t 0 ] && [ ! -r /dev/tty ]; then
+        echo -e "${YELLOW}/dev/tty を読み取れないため、デフォルトで全てのエディターを選択します${NC}"
+        SELECTED_EDITORS=("claude" "cursor" "windsurf" "gemini" "copilot" "common")
+        echo ""
+        return
+    fi
     echo -e "${YELLOW}┌─ AIエディター選択 ─────────────────────────────────────┐${NC}"
     echo ""
     echo -e "${CYAN}1${NC})${GREEN} Claude${NC}        - .claude/ + Claude設定"
@@ -96,7 +104,7 @@ select_editors() {
     echo ""
     echo "複数選択可能です (例: 1 2 3 で Claude, Cursor, Windsurf を選択)"
     echo "スペース区切りで入力、または 7 で全て選択してください:"
-    # /dev/tty を使ってパイプ実行時にも安全に入力を受け取る
+    selections=""
     if ! read -r -p "> " selections < /dev/tty; then
         echo -e "${YELLOW}入力を受け取れませんでした。デフォルトですべてを選択します${NC}"
         selections="7"
