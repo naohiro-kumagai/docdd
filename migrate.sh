@@ -84,11 +84,17 @@ echo ""
 select_editors() {
     # パイプ実行で標準入力がスクリプトに消費されるのを防ぐ
     # /dev/tty が読めない環境では自動で「すべて選択」にフォールバック
-    if [ ! -t 0 ] && [ ! -r /dev/tty ]; then
-        echo -e "${YELLOW}/dev/tty を読み取れないため、デフォルトで全てのエディターを選択します${NC}"
-        SELECTED_EDITORS=("claude" "cursor" "windsurf" "gemini" "copilot" "common")
-        echo ""
-        return
+    local input_fd=0
+    if [ ! -t 0 ]; then
+        if [ -r /dev/tty ]; then
+            exec 3</dev/tty
+            input_fd=3
+        else
+            echo -e "${YELLOW}/dev/tty を読み取れないため、デフォルトで全てのエディターを選択します${NC}"
+            SELECTED_EDITORS=("claude" "cursor" "windsurf" "gemini" "copilot" "common")
+            echo ""
+            return
+        fi
     fi
     echo -e "${YELLOW}┌─ AIエディター選択 ─────────────────────────────────────┐${NC}"
     echo ""
@@ -105,9 +111,12 @@ select_editors() {
     echo "複数選択可能です (例: 1 2 3 で Claude, Cursor, Windsurf を選択)"
     echo "スペース区切りで入力、または 7 で全て選択してください:"
     selections=""
-    if ! read -r -p "> " selections < /dev/tty; then
+    if ! read -r -u "$input_fd" -p "> " selections; then
         echo -e "${YELLOW}入力を受け取れませんでした。デフォルトですべてを選択します${NC}"
         selections="7"
+    fi
+    if [ "$input_fd" -eq 3 ]; then
+        exec 3<&-
     fi
 
     # 入力内容に応じてエディターを設定
