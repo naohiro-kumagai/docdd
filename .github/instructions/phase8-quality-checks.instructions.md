@@ -1,5 +1,5 @@
 ---
-applyTo: "**/*"
+applyTo: '**/*'
 ---
 
 # Phase 8: Quality Checks（品質チェックフェーズ）専用指示
@@ -9,6 +9,32 @@ applyTo: "**/*"
 ## 必須チェック
 
 コミット前に以下をすべて実行し、すべてパスする必要があります。
+
+### 0. エディタ上のエラー確認【最優先】
+
+作業完了を報告する前に、VS Code エディタ上でエラーが出ていないか必ず確認してください。
+
+```bash
+# 方法1: VS Code の「問題」パネルを確認
+# Ctrl+Shift+M（Windows/Linux）または Cmd+Shift+M（Mac）
+
+# 方法2: Pylance エラー表示
+# ファイルのタブに赤い × 印が付いていないか確認
+```
+
+**チェックリスト**:
+
+- [ ] Pylance エラーが 0 件である
+- [ ] ファイルタブに赤い × 印がない
+- [ ] 「問題」パネルが空である
+- [ ] インポートエラーがない
+- [ ] 型チェックエラーがない
+
+**よくあるエラー**:
+
+- ❌ `不明なインポート シンボル` → `__init__.py`に export が不足している
+- ❌ `属性にアクセスできません` → 型ガードが不足している
+- ❌ `が定義されていません` → 古いコードが残っている
 
 ### 1. 型チェック
 
@@ -36,12 +62,20 @@ yarn lint
 
 ### 3. テスト実行
 
+#### React/TypeScript プロジェクト
+
 ```bash
 npm run test
 # または
 bun test
 # または
 yarn test
+```
+
+#### Python/FastAPI プロジェクト（コンテナ内）
+
+```bash
+docker compose run --rm backend uv run pytest
 ```
 
 **期待する結果**: すべてのテストがパス
@@ -64,7 +98,7 @@ yarn build
 
 ```typescript
 // エラー例: Type 'string' is not assignable to type 'number'
-const age: number = "25" // ❌
+const age: number = '25' // ❌
 
 // 修正: 型を合わせる
 const age: number = 25 // ✅
@@ -117,18 +151,21 @@ Error: Cannot find module '@/components/Button'
 ## チェックリスト
 
 実行前:
+
 - [ ] すべての変更をステージング (`git add`)
-- [ ] 不要なconsole.logを削除
+- [ ] 不要な console.log を削除
 - [ ] コメントアウトされたコードを削除
-- [ ] TODOコメントを確認（重要なものは Issue化）
+- [ ] TODO コメントを確認（重要なものは Issue 化）
 
 実行結果:
+
 - [ ] `type-check`: エラーなし
 - [ ] `lint`: エラーなし
 - [ ] `test`: すべてパス
 - [ ] `build`: 成功
 
 すべてパス後:
+
 - [ ] 変更内容を再確認
 - [ ] コミットメッセージを準備
 
@@ -148,7 +185,7 @@ npx prettier --write "src/**/*.{ts,tsx}"
 
 ## 注意事項
 
-- **すべてのチェックがパス必須**: 1つでも失敗したら次のフェーズに進めない
+- **すべてのチェックがパス必須**: 1 つでも失敗したら次のフェーズに進めない
 - エラーを無視しない（`@ts-ignore`、`eslint-disable`は禁止）
 - 修正が難しい場合は設計を見直す
-- CI/CDでも同じチェックが実行されることを意識
+- CI/CD でも同じチェックが実行されることを意識
