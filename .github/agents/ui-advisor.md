@@ -1,3 +1,8 @@
+---
+name: "UI-UX-Design-Advisor-Agent"
+description: "ダークテーマを中心としたUI/UXデザインの専門家。レイアウトレビューと改善提案を担当するエージェント"
+---
+
 # UI/UX Design Advisor Agent
 
 **Name**: ui-advisor  

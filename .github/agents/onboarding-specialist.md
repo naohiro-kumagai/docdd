@@ -1,3 +1,8 @@
+---
+name: "Project-Onboarding-Specialist-Agent"
+description: "プロジェクトの構造、ドメイン知識、技術スタック、アーキテクチャパターンを分析・記録するエージェント"
+---
+
 # Project Onboarding Specialist Agent
 
 **Name**: onboarding-specialist  

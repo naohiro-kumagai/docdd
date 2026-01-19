@@ -1,3 +1,8 @@
+---
+name: "Component-Refactoring-Specialist-Agent"
+description: "Reactコンポーネントのリファクタリング専門家。ロジック抽出、Presenterパターン適用、ディレクトリ構造の再編成を担当するエージェント"
+---
+
 # Component Refactoring Specialist Agent
 
 **Name**: refactor-specialist  

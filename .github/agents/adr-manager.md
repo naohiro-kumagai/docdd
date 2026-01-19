@@ -1,3 +1,8 @@
+---
+name: "ADR-Memory-Manager-Agent"
+description: "Architecture Decision Records (ADR) の記録、検索、管理を自動化するエージェント"
+---
+
 # ADR Memory Manager Agent
 
 **Name**: adr-manager  

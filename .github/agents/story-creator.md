@@ -1,3 +1,8 @@
+---
+name: "Storybook-Story-Creator-Agent"
+description: "プロジェクトルールに準拠したStorybookストーリーの作成とメンテナンスを担当するエージェント"
+---
+
 # Storybook Story Creator Agent
 
 **Name**: story-creator  

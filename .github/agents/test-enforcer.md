@@ -1,3 +1,8 @@
+---
+name: "Test-Guideline-Enforcer-Agent"
+description: "Vitest / React Testing Library を使用したテストコードの品質、構造、命名規約を強制するエージェント"
+---
+
 # Test Guideline Enforcer Agent
 
 **Name**: test-enforcer  

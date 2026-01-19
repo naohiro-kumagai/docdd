@@ -1,3 +1,8 @@
+---
+name: "Spec-Document-Creator-Agent"
+description: "機能仕様、API仕様、アーキテクチャ仕様などの複数ドキュメントタイプをサポートする拡張可能な仕様書作成エージェント"
+---
+
 # Spec Document Creator Agent
 
 **Name**: spec-creator  
