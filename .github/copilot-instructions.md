@@ -184,9 +184,11 @@ npm run build
 
 **タイプ**: feat, fix, refactor, docs, test, style, chore
 
+**コミットメッセージは必ず日本語で記述すること**
+
 ```bash
 git add .
-git commit -m "feat: add user authentication flow"
+git commit -m "feat: ユーザー認証フローを追加"
 ```
 
 ### Phase 11: Push【必須】
