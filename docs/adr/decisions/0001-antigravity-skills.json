@@ -1,0 +1,13 @@
+{
+  "id": "ADR-0001",
+  "title": "Antigravity Skillsの導入",
+  "status": "accepted",
+  "date": "2026-01-25",
+  "context": "エージェントの振る舞いを再利用可能な形で管理し、必要な時にだけ読み込ませたい。",
+  "decision": "プロジェクトに .agent/skills を追加し、SKILL.md / scripts / resources / examples を用いた構成でSkillsを管理する。",
+  "consequences": "技能の共有と再利用が容易になる一方、管理対象ファイルが増える。",
+  "alternatives": [
+    "既存の .github/agents だけで運用する",
+    "Customizationsにすべての指示を統合する"
+  ]
+}

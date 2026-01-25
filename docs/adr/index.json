@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "1.0.0",
+  "updatedAt": "2026-01-25",
+  "decisions": [
+    {
+      "id": "ADR-0001",
+      "title": "Antigravity Skillsの導入",
+      "status": "accepted",
+      "date": "2026-01-25",
+      "path": "docs/adr/decisions/0001-antigravity-skills.json"
+    }
+  ]
+}
