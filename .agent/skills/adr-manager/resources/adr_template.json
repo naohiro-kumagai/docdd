@@ -1,0 +1,12 @@
+{
+  "id": "ADR-0001",
+  "title": "Decision Title",
+  "status": "proposed",
+  "date": "2026-01-25",
+  "context": "解決したい課題や背景を記述する",
+  "decision": "採用した決定を記述する",
+  "consequences": "肯定的/否定的な影響を記述する",
+  "alternatives": [
+    "検討した代替案を列挙する"
+  ]
+}
