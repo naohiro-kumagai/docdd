@@ -121,6 +121,88 @@ Phase 10-11: Commit & Push
 
 **注意**: 各エージェント用ファイルは、本ファイル（AGENTS.md）と `.github/instructions/` の内容に追加する形で、補足情報を提供しています。
 
+---
+
+## 🤖 Claude Code 専用ガイド
+
+Claude Code（CLI）を使用する場合は、以下の機能を活用してください。
+
+### 利用可能なスキル（`/コマンド`）
+
+| スキル | 説明 | 使用タイミング |
+|--------|------|---------------|
+| `/workflow` | ワークフロー選択ヘルパー | タスク開始時 |
+| `/phase1` | 調査フェーズ | ADR確認、コード調査 |
+| `/phase4` | 計画フェーズ | タスク分解、順序決定 |
+| `/phase5` | 実装フェーズ | コーディング |
+| `/phase8` | 品質チェック | 型チェック、リント、テスト |
+| `/phase9` | 動作確認 | ランタイム検証 |
+| `/phase10` | コミット | Git操作 |
+| `/ui-review` | UIレビュー | デザイン改善提案 |
+| `/adr-record` | ADR作成 | アーキテクチャ決定記録 |
+| `/test-gen` | テスト生成 | Vitestテスト作成 |
+
+### 利用可能なエージェント（Task tool）
+
+| エージェント | 説明 |
+|-------------|------|
+| `component-refactoring-specialist` | Reactコンポーネントのリファクタリング |
+| `test-guideline-enforcer` | テストコードの品質チェック |
+| `storybook-story-creator` | Storybookストーリー作成 |
+| `ui-design-advisor` | UI/UXデザインレビュー |
+| `spec-document-creator` | 仕様書作成 |
+| `adr-memory-manager` | ADR管理 |
+| `project-onboarding` | プロジェクトオンボーディング |
+
+### MCP統合
+
+このプロジェクトでは以下のMCPサーバーが利用可能です：
+
+| MCP | 用途 | 主な機能 |
+|-----|------|---------|
+| **Kiri** | コード調査 | セマンティック検索、依存関係分析 |
+| **Serena** | コード編集 | シンボルベース編集、リネーム |
+| **Context7** | ドキュメント | ライブラリドキュメント取得 |
+| **Chrome DevTools** | ブラウザ検証 | スクリーンショット、パフォーマンス |
+| **Next.js DevTools** | Next.js検証 | ランタイムエラー確認 |
+
+### Claude Code ワークフロー例
+
+```bash
+# 1. ワークフロー選択
+/workflow
+
+# 2. 調査開始
+/phase1
+
+# 3. 計画立案
+/phase4
+
+# 4. 実装
+/phase5
+
+# 5. 品質チェック
+/phase8
+
+# 6. 動作確認
+/phase9
+
+# 7. コミット
+/phase10
+```
+
+### タスク管理
+
+Claude Codeでは`TaskCreate`/`TaskUpdate`/`TaskList`ツールでタスク管理が可能です：
+
+```
+# タスク作成例
+TaskCreate:
+  subject: "UserCardコンポーネントを作成"
+  description: "ユーザー情報を表示するカードコンポーネント"
+  activeForm: "UserCardコンポーネントを作成中"
+```
+
 ## 🔗 外部参考
 
 - **AGENTS.md フォーマット仕様** → https://github.com/agentsmd/agents.md

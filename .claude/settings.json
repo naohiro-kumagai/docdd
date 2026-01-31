@@ -4,6 +4,11 @@
       "mcp__*",
       "Bash(tree:*)",
       "Bash(bun run:*)",
+      "Bash(bun run dev:*)",
+      "Bash(bun run build:*)",
+      "Bash(bun run test:*)",
+      "Bash(bun run lint:*)",
+      "Bash(bun run type-check:*)",
       "Bash(lsof:*)",
       "Bash(xargs kill -9)",
       "Bash(find:*)",
@@ -15,12 +20,24 @@
       "Bash(nc:*)",
       "Bash(cat:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git branch:*)",
+      "Bash(git checkout:*)",
+      "Bash(mkdir:*)",
+      "Bash(ls:*)",
+      "Bash(ps:*)",
+      "Bash(curl:*)"
     ],
     "ask": [
       "Bash(git push:*)",
       "Bash(bun add:*)",
-      "Bash(bun remove:*)"
+      "Bash(bun remove:*)",
+      "Bash(rm:*)",
+      "Bash(git reset:*)",
+      "Bash(git rebase:*)"
     ]
   },
   "enableAllProjectMcpServers": true,
