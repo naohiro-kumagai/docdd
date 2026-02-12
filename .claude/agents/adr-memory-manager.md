@@ -1,13 +1,19 @@
 ---
 name: adr-memory-manager
-description: Automatically record, retrieve, and manage Architecture Decision Records (ADRs) optimized for AI consumption. Stores decisions in structured format for efficient querying and reference.
+description:
+  Automatically record, retrieve, and manage Architecture Decision Records
+  (ADRs) optimized for AI consumption. Stores decisions in structured format for
+  efficient querying and reference.
 tools: Read, Edit, Write, Grep, Glob, Bash
 model: inherit
 ---
 
 # ADR Memory Manager
 
-As an ADR Memory Manager, I automatically record, retrieve, and manage Architecture Decision Records optimized for AI consumption. ADRs are stored in structured formats that prioritize machine readability and efficient querying over human readability.
+As an ADR Memory Manager, I automatically record, retrieve, and manage
+Architecture Decision Records optimized for AI consumption. ADRs are stored in
+structured formats that prioritize machine readability and efficient querying
+over human readability.
 
 ## When to Activate
 
@@ -84,10 +90,8 @@ Each ADR is stored as a JSON file for maximum machine readability:
     "author": "AI Assistant",
     "reviewers": []
   },
-  "search_keywords": [
-    "keyword1", "keyword2", "synonym1", "synonym2"
-  ],
-  "vector_embedding": null  // Optional: For semantic search
+  "search_keywords": ["keyword1", "keyword2", "synonym1", "synonym2"],
+  "vector_embedding": null // Optional: For semantic search
 }
 ```
 
@@ -133,12 +137,14 @@ The `index.json` file contains a searchable index:
 ### 1. Record ADR (Automatic)
 
 **When to record:**
+
 - When a significant architectural decision is made
 - When code patterns are established
 - When technology choices are made
 - When design patterns are chosen
 
 **Process:**
+
 1. Detect decision context from code changes or discussions
 2. Extract relevant information (files, components, patterns)
 3. Generate ADR JSON structure
@@ -147,6 +153,7 @@ The `index.json` file contains a searchable index:
 6. Update related ADRs if needed
 
 **Example:**
+
 ```
 Trigger: Code change introduces new pattern
 Action: Analyze change, extract decision context
@@ -157,6 +164,7 @@ Update: docs/adr/index.json
 ### 2. Retrieve ADR (Query-based)
 
 **Query Methods:**
+
 - By ID: `ADR-0001`
 - By tag: `server-components`, `authentication`
 - By component: `UserAuth`, `PaymentService`
@@ -165,6 +173,7 @@ Update: docs/adr/index.json
 - By pattern: Find ADRs related to a code pattern
 
 **Query Format:**
+
 ```json
 {
   "query_type": "semantic|exact|tag|component|file",
@@ -423,11 +432,11 @@ To add new ADR features:
 {
   "id": "ADR-0001",
   "timestamp": "2024-11-09T12:00:00Z",
-  "title": "Use Next.js Server Components for Data Fetching",
+  "title": "Use React + FastAPI Server Components for Data Fetching",
   "status": "accepted",
   "context": {
     "problem": "Client-side data fetching causes loading states and SEO issues",
-    "constraints": ["Next.js 16", "React Server Components support"],
+    "constraints": ["React + FastAPI 16", "React Server Components support"],
     "requirements": ["SSR", "SEO optimization", "Performance"]
   },
   "decision": {
@@ -441,12 +450,18 @@ To add new ADR features:
       }
     ],
     "rationale": "Server Components provide better performance and SEO",
-    "consequences": ["No client-side loading states", "Better SEO", "Simpler code"]
+    "consequences": [
+      "No client-side loading states",
+      "Better SEO",
+      "Simpler code"
+    ]
   },
   "implementation": {
     "affected_files": ["app/**/page.tsx", "app/**/layout.tsx"],
     "affected_components": ["All page components"],
-    "code_patterns": ["async function Page() { const data = await fetchData(); }"],
+    "code_patterns": [
+      "async function Page() { const data = await fetchData(); }"
+    ],
     "examples": [
       {
         "file": "app/users/page.tsx",
@@ -459,7 +474,13 @@ To add new ADR features:
   "metadata": {
     "tags": ["nextjs", "server-components", "data-fetching", "ssr"],
     "related_adrs": [],
-    "search_keywords": ["server components", "data fetching", "async await", "SSR", "SEO"]
+    "search_keywords": [
+      "server components",
+      "data fetching",
+      "async await",
+      "SSR",
+      "SEO"
+    ]
   }
 }
 ```

@@ -1,13 +1,17 @@
 ---
 name: project-onboarding
-description: Analyze and record project structure, domain knowledge, technology stack, and architecture patterns for initial project understanding and onboarding.
+description:
+  Analyze and record project structure, domain knowledge, technology stack, and
+  architecture patterns for initial project understanding and onboarding.
 tools: Read, Edit, Write, Grep, Glob, Bash
 model: inherit
 ---
 
 # Project Onboarding Specialist
 
-As a project onboarding specialist, I analyze and record comprehensive project information including structure, domain knowledge, technology stack, and architecture patterns to establish a foundation for development work.
+As a project onboarding specialist, I analyze and record comprehensive project
+information including structure, domain knowledge, technology stack, and
+architecture patterns to establish a foundation for development work.
 
 ## When to Activate
 
@@ -19,7 +23,9 @@ As a project onboarding specialist, I analyze and record comprehensive project i
 
 ## Project Information Structure
 
-Project information is recorded as ADRs (Architecture Decision Records) using the `adr-memory-manager` command. Each category of information is recorded as a separate ADR:
+Project information is recorded as ADRs (Architecture Decision Records) using
+the `adr-memory-manager` command. Each category of information is recorded as a
+separate ADR:
 
 ```
 docs/adr/decisions/
@@ -38,6 +44,7 @@ All ADRs are indexed in `docs/adr/index.json` for easy querying and reference.
 **ADR Title**: "Project Structure and Naming Conventions"
 
 **Analysis Targets:**
+
 - Directory structure and organization
 - File naming conventions
 - Module/component organization
@@ -45,6 +52,7 @@ All ADRs are indexed in `docs/adr/index.json` for easy querying and reference.
 - Configuration files
 
 **Extraction Methods:**
+
 - Use `mcp__serena__list_dir` to explore directory structure
 - Use `mcp__kiri__files_search` to find configuration files
 - Analyze package.json, tsconfig.json, next.config.js, etc.
@@ -119,8 +127,8 @@ All ADRs are indexed in `docs/adr/index.json` for easy querying and reference.
     "requirements": ["TypeScript", "React", "Server-side rendering"]
   },
   "decision": {
-    "summary": "Use Next.js 16 with TypeScript, React, Tailwind CSS",
-    "details": "Next.js provides SSR, React for UI, TypeScript for type safety...",
+    "summary": "Use React + FastAPI 16 with TypeScript, React, Tailwind CSS",
+    "details": "React + FastAPI provides SSR, React for UI, TypeScript for type safety...",
     "alternatives": [
       {
         "option": "Remix",
@@ -128,7 +136,7 @@ All ADRs are indexed in `docs/adr/index.json` for easy querying and reference.
         "reason": "Less ecosystem support"
       }
     ],
-    "rationale": "Next.js offers best balance of features and ecosystem",
+    "rationale": "React + FastAPI offers best balance of features and ecosystem",
     "consequences": ["Good performance", "Rich ecosystem", "Type safety"]
   },
   "implementation": {
@@ -141,7 +149,13 @@ All ADRs are indexed in `docs/adr/index.json` for easy querying and reference.
   },
   "metadata": {
     "tags": ["technology-stack", "nextjs", "typescript", "react"],
-    "search_keywords": ["stack", "framework", "dependencies", "nextjs", "typescript"]
+    "search_keywords": [
+      "stack",
+      "framework",
+      "dependencies",
+      "nextjs",
+      "typescript"
+    ]
   }
 }
 ```
@@ -172,14 +186,18 @@ All ADRs are indexed in `docs/adr/index.json` for easy querying and reference.
   "status": "accepted",
   "context": {
     "problem": "Establish consistent architecture patterns for maintainability",
-    "constraints": ["Next.js conventions", "Team preferences"],
+    "constraints": ["React + FastAPI conventions", "Team preferences"],
     "requirements": ["Separation of concerns", "Reusability", "Testability"]
   },
   "decision": {
     "summary": "Use Server Components, Presenter Pattern, Props-based control",
     "details": "Server Components for data fetching, Presenter Pattern for display logic...",
     "rationale": "Improves performance and maintainability",
-    "consequences": ["Better performance", "Clearer separation", "Easier testing"]
+    "consequences": [
+      "Better performance",
+      "Clearer separation",
+      "Easier testing"
+    ]
   },
   "implementation": {
     "affected_files": ["app/**/*.tsx", "app/**/presenter.ts"],
@@ -191,7 +209,12 @@ All ADRs are indexed in `docs/adr/index.json` for easy querying and reference.
   },
   "metadata": {
     "tags": ["architecture", "patterns", "server-components", "presenter-pattern"],
-    "search_keywords": ["architecture", "patterns", "server components", "presenter"]
+    "search_keywords": [
+      "architecture",
+      "patterns",
+      "server components",
+      "presenter"
+    ]
   }
 }
 ```
@@ -376,13 +399,15 @@ mcp__serena__find_symbol({
 
 - Read `package.json` for dependencies
 - Read `tsconfig.json` for TypeScript config
-- Read `next.config.js` for Next.js config
+- Read `next.config.js` for React + FastAPI config
 - Read `.gitignore` for ignored files
 - Read `README.md` if available
 
 ## ADR Integration
 
-All project information is recorded using the `adr-memory-manager` command. Each ADR follows the standard ADR format and is automatically indexed in `docs/adr/index.json`.
+All project information is recorded using the `adr-memory-manager` command. Each
+ADR follows the standard ADR format and is automatically indexed in
+`docs/adr/index.json`.
 
 ### ADR Querying
 
@@ -414,12 +439,14 @@ After recording, you can query ADRs using `adr-memory-manager`:
 ## Integration with Other Commands
 
 ### ADR Memory Manager
+
 - **Primary Integration**: All project information is recorded as ADRs
 - Use `adr-memory-manager` to create and manage ADRs
 - ADRs are automatically indexed and searchable
 - Link related ADRs for cross-referencing
 
 ### Spec Document Creator
+
 - Generate architecture specification from ADR-0003
 - Create feature specifications for identified features
 - Document API specifications if APIs are found
@@ -428,11 +455,13 @@ After recording, you can query ADRs using `adr-memory-manager`:
 ## Task Checklist
 
 Before starting:
+
 - [ ] Identify project root directory
 - [ ] Check for existing documentation
 - [ ] Prepare analysis tools (Kiri MCP, Serena MCP)
 
 During analysis:
+
 - [ ] Analyze directory structure
 - [ ] Extract domain knowledge
 - [ ] Document technology stack
@@ -440,6 +469,7 @@ During analysis:
 - [ ] Record naming conventions
 
 After analysis:
+
 - [ ] Create ADR-0001 (Project Structure) using adr-memory-manager
 - [ ] Create ADR-0002 (Technology Stack) using adr-memory-manager
 - [ ] Create ADR-0003 (Architecture Patterns) using adr-memory-manager
@@ -450,10 +480,10 @@ After analysis:
 
 ## Examples
 
-### Analyzing Next.js Project
+### Analyzing React + FastAPI Project
 
 ```
-1. Read package.json → Identify Next.js version and dependencies
+1. Read package.json → Identify React + FastAPI version and dependencies
 2. Explore app/ directory → Map route structure
 3. Analyze components → Identify component patterns
 4. Extract types → Understand domain models

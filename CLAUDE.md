@@ -3,6 +3,11 @@
 このファイルは、Claude Codeを使用した開発ワークフローの標準手順を定義します。
 新機能の追加やバグ修正を行う際は、以下のフローに従ってください。
 
+> **Note**: このプロジェクトは**Claude Code**と**Cursor**両方をサポートしています。
+> - **Claude Code**: このファイル（`CLAUDE.md`）を参照
+> - **Cursor**: `.cursor/rules/`ディレクトリ内の`.mdc`ファイルを参照
+> - 詳細は`docs/DUAL_SETUP.md`を参照してください。
+
 ## 基本方針
 
 - **できるだけ全てのフェーズを実行する**（タイプ別の推奨フローは下記参照）
@@ -67,6 +72,115 @@
 - **`spec-document-creator`** (`.claude/agents/spec-document-creator.md`) - 拡張可能な仕様書作成コマンド。機能仕様、API仕様、アーキテクチャ仕様など複数のドキュメントタイプをサポート
 - **`adr-memory-manager`** (`.claude/agents/adr-memory-manager.md`) - AI用のADR（Architecture Decision Record）を自動記録・検索・管理。JSON形式で機械可読性を最優先に設計
 - **`project-onboarding`** (`.claude/agents/project-onboarding.md`) - プロジェクトの構造、ドメイン知識、技術スタック、アーキテクチャパターンを分析・記録。新規プロジェクトのオンボーディングに最適
+
+---
+
+## Agent Teams Guide (Experimental)
+
+**Claude Code Agent Teams** は、独立したコンテキストとプロセスを持つ複数のClaudeインスタンスが、
+ファイルシステムベースの共有状態を通じて協調動作する **分散マルチエージェントシステム** です。
+
+> **⚠️ 前提**: この機能は Experimental（実験的）であり、`.claude/settings.json` の
+> `env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS: "1"` で有効化されています。
+
+### 1. アーキテクチャ概要
+
+- **プロセス分離**: 各エージェントはOSレベルで独立したプロセスとして動作し、独自のコンテキストウィンドウを持つ
+- **ファイルシステム調整**: エージェント間通信は `~/.claude/teams/` および `~/.claude/tasks/` のJSONファイルで管理
+- **表示モード**: `teammateMode` で制御（現在 `tmux` に設定済み）
+
+| 表示モード | 技術的特徴 | 推奨ケース |
+| --- | --- | --- |
+| `tmux` | 各エージェントが独立した端末ペインを占有（**推奨**） | 並列タスクのデバッグ、リアルタイム監視 |
+| `in-process` | バックグラウンドプロセスとして動作。Shift+Up/Down で切替 | tmux未使用環境 |
+| `auto` | 環境に応じて自動選択 | デフォルト |
+
+### 2. サブエージェントとの違い
+
+| 観点 | サブエージェント | Agent Teams |
+| --- | --- | --- |
+| 通信 | メインへの垂直型レポートのみ | チームメイト間のP2P＋ブロードキャスト |
+| ライフサイクル | タスクごとに生成・消滅 | セッション中継続、複数タスクを順次処理 |
+| 状態共有 | なし（独立） | 共有タスクリストでリアルタイム共有 |
+
+### 3. 7つのチームプリミティブ
+
+リードエージェントが使用する制御API:
+
+| プリミティブ | 役割 |
+| --- | --- |
+| `TeamCreate` | チームディレクトリとタスクリストの初期化 |
+| `TaskCreate` | タスク定義と依存関係の設定（DAG構築） |
+| `TaskUpdate` | タスク状態の更新、所有権の確立 |
+| `TaskList` | 全タスクのステータス一覧取得（進行監視） |
+| `Task` | チームメイトの起動（プロセスのスポーン） |
+| `SendMessage` | エージェント間通信（shutdown_request 等の制御信号含む） |
+| `TeamDelete` | リソース解放、クリーンアップ |
+
+### 4. Delegate Mode（委譲モード）
+
+リードエージェントを「純粋なマネージャー」にする最重要設定:
+
+- **起動方法**: `claude --permission-mode delegate`
+- **実行中の切替**: `Shift+Tab` でモードを循環
+- **効果**: リードの使用ツールが管理・通信系のみに制限される
+   - **許可**: TeamCreate, TaskCreate, TaskUpdate, TaskList, SendMessage, TeamDelete
+   - **禁止**: Edit, Write, Bash（実装系）
+
+### 5. チームメイトの定義方法
+
+#### 5-1. 動的定義（Task ツールによるスポーン時）
+
+```json
+Task({
+   "team_name": "feature-team",
+   "name": "frontend-dev",
+   "subagent_type": "general-purpose",
+   "prompt": "あなたはシニアフロントエンドエンジニアです。/src/components 以外は変更禁止。"
+})
+```
+
+#### 5-2. 静的定義（`.claude/agents/` のファイル）
+
+YAML Frontmatter + Markdown で定義。`subagent_type` に指定して呼び出し可能:
+
+```yaml
+---
+name: security-auditor
+description: OWASP Top 10に基づくセキュリティ監査
+tools:
+disallowedTools: [Edit, Write]
+model: sonnet
+memory: project
+---
+あなたはセキュリティ監査のスペシャリストです。
+コードを修正する権限は持ちません。発見事項をリードに報告してください。
+```
+
+### 6. フック（Hooks）による自動制御
+
+`.claude/settings.json` に登録済み:
+
+- **`TeammateIdle`**: アイドルエージェントに次のタスクを割り当て、またはシャットダウン（ゾンビ防止）
+- **`TaskCompleted`**: タスク完了時に品質チェック（テスト等）を実行。失敗するとタスク完了をブロックし、エージェントが自律修正
+
+### 7. 推奨ワークフロー: Plan & Delegate パターン
+
+1. **Phase 1 - 計画**: `claude --permission-mode plan` で開始。コード変更なし、分析と計画のみ
+2. **Phase 2 - 委譲**: 計画承認後、`Shift+Tab` で Delegate Mode に切替。チーム作成＆タスク割当
+3. **Phase 3 - 収束**: 全タスク完了後、リードが統合・最終報告。`TeamDelete` でクリーンアップ
+
+### 8. Team利用の判断基準
+
+**GO（チーム推奨）**:
+- 複数ファイル/モジュールにまたがる変更
+- フロント＋バックエンドなど並列作業が可能なケース
+- 異なる専門性が同時に必要な場合
+
+**NO（単独推奨）**:
+- 単一バグ修正、タイポ修正
+- 完全に直列な依存タスク
+- トークン節約を優先する場合
 
 ---
 

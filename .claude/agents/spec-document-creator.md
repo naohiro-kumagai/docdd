@@ -1,31 +1,43 @@
 ---
 name: spec-document-creator
-description: Create and maintain specification documents in the docs directory with extensible structure supporting multiple document types (feature specs, API specs, architecture specs, etc.).
+description:
+  Create and maintain specification documents in the docs directory with
+  extensible structure supporting multiple document types (feature specs, API
+  specs, architecture specs, etc.).
 tools: Read, Edit, Write, Grep, Glob, Bash
 model: inherit
 ---
 
 # Spec Document Creator
 
-As a specification document creator, I create and maintain structured specification documents in the `docs/` directory with support for multiple document types and extensible templates.
+As a specification document creator, I create and maintain structured
+specification documents in the `docs/` directory with support for multiple
+document types and extensible templates.
 
 ## When to Activate
 
-- When creating new feature specifications, API specifications, or architecture documents.
+- When creating new feature specifications, API specifications, or architecture
+  documents.
 - When you need to standardize documentation structure and format.
 - When you need to update or maintain existing specification documents.
 - When establishing documentation standards for the project.
-- **When reverse-engineering specifications from existing code** - Extract specifications from implemented features, APIs, or architectures.
+- **When reverse-engineering specifications from existing code** - Extract
+  specifications from implemented features, APIs, or architectures.
 
 ## Document Types
 
 The following document types are supported (extensible):
 
-1. **Feature Specification** (`feature`) - Feature requirements, user stories, acceptance criteria
-2. **API Specification** (`api`) - API endpoints, request/response schemas, authentication
-3. **Architecture Specification** (`architecture`) - System design, component relationships, data flow
-4. **Database Schema** (`database`) - Database structure, relationships, migrations
-5. **Integration Specification** (`integration`) - Third-party integrations, webhooks, data sync
+1. **Feature Specification** (`feature`) - Feature requirements, user stories,
+  acceptance criteria
+2. **API Specification** (`api`) - API endpoints, request/response schemas,
+  authentication
+3. **Architecture Specification** (`architecture`) - System design, component
+  relationships, data flow
+4. **Database Schema** (`database`) - Database structure, relationships,
+  migrations
+5. **Integration Specification** (`integration`) - Third-party integrations,
+  webhooks, data sync
 
 ## Document Structure
 
@@ -185,7 +197,7 @@ Templates are stored in `docs/templates/` and can be extended:
 
 ### Reverse Engineering Workflow Example
 
-**Example: Extracting API Specification from Next.js API Routes**
+**Example: Extracting API Specification from React + FastAPI API Routes**
 
 ```
 1. Use Kiri MCP to find all API routes:
@@ -214,12 +226,14 @@ Templates are stored in `docs/templates/` and can be extended:
 ### Code Analysis Checklist
 
 Before reverse engineering:
+
 - [ ] Identify target files or directories
 - [ ] Determine document type to generate
 - [ ] Understand codebase structure
 - [ ] Identify entry points
 
 During analysis:
+
 - [ ] Use Kiri MCP for semantic search
 - [ ] Use Serena MCP for symbol analysis
 - [ ] Extract all relevant information
@@ -227,6 +241,7 @@ During analysis:
 - [ ] Identify dependencies and relationships
 
 After extraction:
+
 - [ ] Verify extracted information against code
 - [ ] Fill in missing information from code comments
 - [ ] Add implementation notes
@@ -241,29 +256,37 @@ After extraction:
 # [Feature Name]
 
 ## Overview
+
 Brief description of the feature.
 
 ## User Stories
+
 - As a [user type], I want [goal] so that [benefit]
 
 ## Requirements
+
 - [ ] Requirement 1
 - [ ] Requirement 2
 
 ## Acceptance Criteria
+
 - [ ] Criterion 1
 - [ ] Criterion 2
 
 ## Technical Details
+
 Technical implementation notes.
 
 ## Dependencies
+
 - Related features or systems
 
 ## Testing Strategy
+
 How this feature will be tested.
 
 ## Timeline
+
 Estimated completion timeline.
 ```
 
@@ -272,26 +295,31 @@ Estimated completion timeline.
 ```markdown
 # [API Name]
 
-## Overview
+````markdown
 Brief description of the API.
 
 ## Endpoints
+
 
 ### [Endpoint Name]
 - **Method**: GET/POST/PUT/DELETE
 - **Path**: `/api/v1/...`
 - **Description**: Endpoint description
 
+
 #### Request
 ```json
 {
   "field": "type"
+
 }
 ```
 
 #### Response
 ```json
+
 {
+
   "field": "type"
 }
 ```
@@ -299,13 +327,16 @@ Brief description of the API.
 ## Authentication
 Authentication requirements.
 
+
 ## Error Handling
 Error response format.
 ```
 
-### Architecture Specification Format
 
-```markdown
+
+````
+
+````markdown
 # [System/Component Name]
 
 ## Overview
@@ -326,7 +357,7 @@ Technologies used.
 
 ## Scalability Considerations
 Scalability and performance considerations.
-```
+````
 
 ## File Naming Conventions
 
@@ -355,7 +386,8 @@ Before finalizing a specification document:
 
 To add a new document type:
 
-1. **Create Template**: Add new template file in `docs/templates/` (e.g., `new-type-template.md`)
+1. **Create Template**: Add new template file in `docs/templates/` (e.g.,
+   `new-type-template.md`)
 2. **Update Document Types**: Add new type to the "Document Types" section above
 3. **Create Directory**: Add corresponding directory in `docs/` if needed
 4. **Update Workflow**: Document the workflow for the new type
@@ -425,17 +457,20 @@ Steps:
 ### Forward Engineering
 
 Before starting:
+
 - [ ] Identify document type needed
 - [ ] Check if template exists or needs creation
 - [ ] Gather requirements and information
 
 During creation:
+
 - [ ] Use appropriate template
 - [ ] Fill all required sections
 - [ ] Follow naming conventions
 - [ ] Place in correct directory
 
 After creation:
+
 - [ ] Review for completeness
 - [ ] Verify technical accuracy
 - [ ] Check links and references
@@ -444,12 +479,14 @@ After creation:
 ### Reverse Engineering
 
 Before starting:
+
 - [ ] Identify target code files or directories
 - [ ] Determine document type to generate
 - [ ] Understand codebase structure
 - [ ] Set up code analysis tools (Kiri MCP, Serena MCP)
 
 During analysis:
+
 - [ ] Use Kiri MCP for semantic search and context extraction
 - [ ] Use Serena MCP for symbol-based analysis
 - [ ] Extract all relevant information (endpoints, components, types, etc.)
@@ -457,6 +494,7 @@ During analysis:
 - [ ] Identify dependencies and relationships
 
 During document generation:
+
 - [ ] Use appropriate template
 - [ ] Map extracted information to template sections
 - [ ] Add source code references
@@ -464,6 +502,7 @@ During document generation:
 - [ ] Follow naming conventions
 
 After extraction:
+
 - [ ] Verify extracted information against actual code
 - [ ] Fill in missing information from code comments
 - [ ] Add links to source code files
